@@ -1,51 +1,53 @@
 class Particle {
-    constructor(args) {
-        let def = {
-            lastP: createVector(0, 0, 0), // 上一個位置
-            p: createVector(0, 0, 0), // 當前位置
-            v: createVector(0, 0, 0), // 速度
-            a: createVector(0, 0, 0), // 加速度
-            color: color(255), // 顏色
-            rSpan: random([10, 20, 50, 100]), // 半徑跨度
-            dashSpan: random([1, 10, 10000000]), // 破折號跨度
-            alive: true, // 是否存活
-            r: random(), // 半徑
-            live: int(random([100, 500])), // 存活時間
-            originalLive: 0, // 初始存活時間
-            updateCount: 0, // 更新計數
-            gen: 0, // 生成數
-            freq: random(random(0, 50)), // 頻率
-            freq2: random(random(0, 50)), // 第二頻率
-            rotAmount: random(0.4, 1), // 旋轉量
-            noiseAmount: random(0.8, 1), // 噪音量
-            randomId: random(50000), // 隨機ID
-            growFreq: random([20, 30, 40, 50]), // 增長頻率
-            speedLimit: random(5, 100), // 速度限制
-            history: [], // 歷史位置
-            axis: createVector(random(-100, 100), random(-100, 100), random(-100, 100)).normalize(), // 軸
-            charge: random(-5, 5) * random() * random() * random(), // 電荷
-            tick: null, // 更新輔助函數
-            endCallback: null, // 結束回調函數
-            preDelay: 0, // 前置延遲
-            rShrinkFactor: 0.995, // 半徑縮小因子
-            vShrinkFactor: 0.995, // 速度縮小因子
-            renderType: "brush", // 渲染類型
-            renderJitter: 2, // 渲染抖動
-            renderJitterFreq: 100, // 渲染抖動頻率
-            p2D: null, // 2D位置
-            p2D2: null, // 第二2D位置
-            brush: null, // 畫刷
-            maxSeg: 2, // 最大段數
-            brushLerpMap: k => k, // 畫刷線性插值映射
-            rMappingFunc: null, // 半徑映射函數
-            isBrushRotateFollowVelocity: true, // 畫刷是否隨速度旋轉
-            brushAngleNoiseAmpFactor: 0.2, // 畫刷角度噪音放大因子
-            mainGraphics: mainGraphics // 主繪圖區域
-        };
-        Object.assign(def, args);
-        Object.assign(this, def);
+    constructor(config = {}) {
+        this.state = {
+            // 基本屬性配置
+            randomId: random(50000),
+            gen: 0,
+            mainGraphics: mainGraphics,
+            color: color(255),
+            charge: random(-5, 5) * random() * random() * random(),
+            axis: createVector(random(-100, 100), random(-100, 100), random(-100, 100)).normalize(),
 
-        let pathColor = color(this.color)
+            // 渲染相關配置
+            renderType: "brush",
+            renderJitter: 2,
+            renderJitterFreq: 100,
+            p2D: null,
+            p2D2: null,
+            brush: null,
+            maxSeg: 2,
+            brushLerpMap: k => k,
+            rMappingFunc: null,
+            isBrushRotateFollowVelocity: true,
+            brushAngleNoiseAmpFactor: 0.2,
+            history: [],
+
+            // 生命週期相關配置
+            alive: true,
+            live: int(random([100, 500])),
+            originalLive: 0,
+            updateCount: 0,
+            tick: null,
+            endCallback: null,
+            preDelay: 0,
+            rShrinkFactor: 0.995,
+
+            // 物理運動相關配置
+            lastPosition: createVector(0, 0, 0),
+            p: createVector(0, 0, 0),
+            v: createVector(0, 0, 0),
+            a: createVector(0, 0, 0),
+            r: random(),
+            speedLimit: random(5, 100),
+            vShrinkFactor: 0.995
+        };
+
+        // 合併配置
+        this.state = {...this.state, ...config};
+        Object.entries(this.state).forEach(([key, value]) => this[key] = value);
+
+        const pathColor = color(this.color)
         pathColor.setAlpha(200)
         this.originalLive = this.live
         this.pathColor = pathColor
@@ -61,7 +63,7 @@ class Particle {
         }
 
         this.updateCount++;
-        this.lastP = this.p.copy();
+        this.lastPosition = this.p.copy();
         this.p.add(this.v);
         this.v.add(this.a);
         this.v.limit(this.r * this.speedLimit);
@@ -105,7 +107,7 @@ class Particle {
         mainGraphics.noStroke();
 
         // 旋轉粒子位置
-        let rotatedP = rotateY3D(this.lastP, angleY);
+        let rotatedP = rotateY3D(this.lastPosition, angleY);
         rotatedP = rotateX3D(rotatedP, angleX);
         rotatedP = rotateZ3D(rotatedP, angleZ);
 

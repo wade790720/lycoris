@@ -69,7 +69,7 @@ function generateFlowers() {
 	plantBrushes = Array.from({ length: 5 }).map(() => mergeBrushHeads(random(useBrushesGreen), random(useBrushesGreen)));
 
 	// 生成花朵植物
-	for (let i = 0; i < 1; i++) {
+	for (let i = 0; i < 10; i++) {
 		generateFlowerPlant(createVector(random(-100, 100), random(-20, 20) + 300, random(-100, 100)));
 	}
 }
