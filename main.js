@@ -49,17 +49,6 @@ function setup() {
 }
 
 function draw() {
-  // brushSystem.updateAllBrushes()
-  // if (!debug) {
-  //   mouseX = width / 2;
-  //   mouseY = height / 2;
-  // }
-  // if (autoControl){
-
-  // mouseX = map(sin(frameCount/2000),-1,1,0,width)
-  // mouseY = map(sin(frameCount/2000),-1,1,0,width)
-  // }
-
   if (debug) {
     layerSystem.clearAllLayer()
     mainGraphics.clear();
@@ -68,10 +57,6 @@ function draw() {
   mainGraphics.push();
   mainGraphics.translate(width / 2, height / 2); // Translate origin to the center of the canvas
 
-  // // Map mouseX and mouseY to angles
-  // angleY = map(mouseX, 0, width, -PI, PI);
-  // angleX = map(mouseY, 0, height, -PI, PI);
-  // angleZ = angleY * 0.5; // Optionally add some Z rotation
 
   if (debug && autoControl) {
     angleX = PI / 4
@@ -99,11 +84,13 @@ function draw() {
       angleX,
       angleY,
       angleZ,
-      cameraPosition,
+      camera: cameraPosition, 
       fov,
       zoom
     });
   }
+
+//   angleX, angleY, angleZ, camera, fov, zoom 
 
   // Remove dead particles
   if (!debug) {
