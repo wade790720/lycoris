@@ -268,14 +268,39 @@ class Particle {
     }
 
     // 渲染抖動應用函數
-    applyRenderJitter(p2D) {
-        let _p2D = p2D.copy();
-        _p2D.x += map(noise(p2D.x / this.renderJitterFreq, p2D.y / this.renderJitterFreq, p2D.z / this.renderJitterFreq), 0, 1, -1, 1) * this.renderJitter;
-        _p2D.y += map(noise(p2D.x / this.renderJitterFreq, p2D.y / this.renderJitterFreq, p2D.z / this.renderJitterFreq + 5000), 0, 1, -1, 1) * this.renderJitter;
-        _p2D.z += map(noise(p2D.x / this.renderJitterFreq, p2D.y / this.renderJitterFreq, p2D.z / this.renderJitterFreq + 500000), 0, 1, -1, 1) * this.renderJitter;
-        return _p2D;
-    }
+    applyRenderJitter(position) {
+        let jitteredPosition = position.copy();
+        
+        // 為每個座標軸添加柏林雜訊抖動效果
+        jitteredPosition.x += map(
+            noise(
+                position.x / this.renderJitterFreq, 
+                position.y / this.renderJitterFreq, 
+                position.z / this.renderJitterFreq
+            ), 
+            0, 1, -1, 1
+        ) * this.renderJitter;
+        
+        jitteredPosition.y += map(
+            noise(
+                position.x / this.renderJitterFreq, 
+                position.y / this.renderJitterFreq, 
+                position.z / this.renderJitterFreq + 5000
+            ), 
+            0, 1, -1, 1
+        ) * this.renderJitter;
+        
+        jitteredPosition.z += map(
+            noise(
+                position.x / this.renderJitterFreq, 
+                position.y / this.renderJitterFreq, 
+                position.z / this.renderJitterFreq + 500000
+            ), 
+            0, 1, -1, 1
+        ) * this.renderJitter;
 
+        return jitteredPosition;
+    }
     // 計算半徑函數
     calculateRadius() {
         let radius = this.r * (this.radiusMappingFunc ? this.radiusMappingFunc(constrain(this.lifespan / this.originalLive, 0.000001, 1), this) : 1);
