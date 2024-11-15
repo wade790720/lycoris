@@ -20,6 +20,8 @@ let mainGraphics;
 let debug = false;
 let layerSystem, brushSystem
 
+let controls;
+
 function preload() {
   overAllTexture = loadImage("assets/canvas-light-6k.jpg");
 }
@@ -30,6 +32,7 @@ function setup() {
 
   mainGraphics = createGraphics(width, height);
 
+  controls = new Controls();
   brushSystem = new BrushSystem()
   layerSystem = new LayerSystem(10, false)
 
@@ -46,6 +49,8 @@ function setup() {
   angleY = map(mouseX, 0, width, -PI, PI);
   angleX = map(mouseY, 0, height, -PI, PI);
   angleZ = angleY * 0.5; // Optionally add some Z rotation
+
+
 }
 
 function draw() {
@@ -84,13 +89,11 @@ function draw() {
       angleX,
       angleY,
       angleZ,
-      camera: cameraPosition, 
+      camera: cameraPosition,
       fov,
       zoom
     });
   }
-
-//   angleX, angleY, angleZ, camera, fov, zoom 
 
   // Remove dead particles
   if (!debug) {
@@ -145,109 +148,32 @@ function draw() {
 
 }
 
-
-/**
- * 滑鼠控制相關功能
- */
-
 // 滑鼠滾輪控制縮放
 function mouseWheel(event) {
-  const ZOOM_FACTOR = 1.1;
-  const MIN_ZOOM = 0.1;
-  const MAX_ZOOM = 10;
-
-  // 根據滾輪方向調整縮放
-  zoom *= event.delta > 0 ? ZOOM_FACTOR : 1/ZOOM_FACTOR;
-  
-  // 限制縮放範圍
-  zoom = constrain(zoom, MIN_ZOOM, MAX_ZOOM);
+  controls.handleMouseWheel(event, { zoom });
 }
 
 // 滑鼠拖曳控制視角
 function mouseDragged() {
-  const FOV_SENSITIVITY = 2;      // FOV 調整靈敏度
-  const PAN_SENSITIVITY = 0.1;    // 平移靈敏度  
-  const ROTATION_SENSITIVITY = 0.01; // 旋轉靈敏度
-
-  // 計算滑鼠移動距離
-  let deltaX = mouseX - previousMouseX;
-  let deltaY = mouseY - previousMouseY;
-
-  if (isDragging) {
-    // Shift + 拖曳: 調整視野範圍(FOV)
-    fov += deltaY * FOV_SENSITIVITY;
-    fov = constrain(fov, 50, 1000);
-  } 
-  else if (isPanning) {
-    // 右鍵拖曳: 平移視角
-    cameraPosition.x -= deltaX * PAN_SENSITIVITY;
-    cameraPosition.y += deltaY * PAN_SENSITIVITY;
-  } 
-  else {
-    // 一般拖曳: 旋轉視角
-    angleY += deltaX * ROTATION_SENSITIVITY; // 水平旋轉
-    angleX -= deltaY * ROTATION_SENSITIVITY; // 垂直旋轉
-  }
-
-  // 更新滑鼠位置
-  updatePreviousMousePosition();
-}
-
-// 更新前一幀的滑鼠位置
-function updatePreviousMousePosition() {
-  previousMouseX = mouseX;
-  previousMouseY = mouseY;
+  controls.handleMouseDragged({
+    fov,
+    cameraPosition,
+    angleX,
+    angleY
+  });
 }
 
 // 滑鼠按下時的處理
 function mousePressed() {
-  updatePreviousMousePosition();
-  
-  // 檢查特殊按鍵狀態
-  isDragging = keyIsDown(SHIFT);  // Shift 鍵狀態
-  isPanning = mouseButton === RIGHT; // 右鍵狀態
+  controls.handleMousePressed();
 }
 
 // 滑鼠放開時的處理
 function mouseReleased() {
-  // 重置拖曳狀態
-  isDragging = false;
-  isPanning = false;
+  controls.handleMouseReleased();
 }
 
 // 鍵盤控制
 function keyPressed() {
-  // 定義快捷鍵映射
-  const KEY_ACTIONS = {
-    ']': () => adjustFOV(1.1),
-    '}': () => adjustFOV(1.1), 
-    '[': () => adjustFOV(1/1.1),
-    '{': () => adjustFOV(1/1.1),
-    's': downloadJPEG,
-    'r': resetFOV
-  };
-
-  // 執行對應的動作
-  const action = KEY_ACTIONS[key];
-  if (action) {
-    action();
-  }
-}
-
-// 調整視野範圍
-function adjustFOV(factor) {
-  fov = constrain(fov * factor, 50, 1000);
-}
-
-// 儲存畫布
-function downloadJPEG() {
-  const timestamp = new Date().toISOString()
-    .slice(0,19)
-    .replace(/[-:]/g,'');
-  save(`Lycoris_${timestamp}.jpg`);
-}
-
-// 重置視野範圍
-function resetFOV() {
-  fov = 500;
+  controls.handleKeyPressed({ fov });
 }
