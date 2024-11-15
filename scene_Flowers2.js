@@ -87,12 +87,12 @@ function rotateVectorInPlane(v1, v2, v4, ang) {
 // 生成花朵植物
 function generateFlowerPlant(pos) {
 	colorMode(HSB);
-	let vec = random3DRotate(createVector(0, -random(0.9, 1) - 1, 0), random(PI / 2));
-	let layer = layerSystem.getRandomLayer(0);
+	let plantGrowthDirection = random3DRotate(createVector(0, -random(0.9, 1) - 1, 0), random(PI / 2));
+	let plantDrawingLayer = layerSystem.getRandomLayer(0);
 
 	particles.push(new Particle({
 		p: pos.copy(),
-		vector: vec,
+		vector: plantGrowthDirection,
 		velocityShrinkFactor: 0.995,
 		radiusShrinkFactor: 0.995,
 		acceleration: createVector(0, -0.01, 0),
@@ -101,7 +101,7 @@ function generateFlowerPlant(pos) {
 		preDelay: 0,
 		renderJitter: 5,
 		lifespan: random(40, 250),
-		mainGraphics: layer.graphics,
+		mainGraphics: plantDrawingLayer.graphics,
 		maxSegments: 10,
 		brush: random(plantBrushes),
 		brush2: random(plantBrushes),

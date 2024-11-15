@@ -159,42 +159,63 @@ class Particle {
         mainGraphics.pop();
     }
 
-    // 渲染 brushImage 類型
-    renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, radius) {
+    // 渲染筆刷圖像的共用方法
+    #renderBrushCommon(mainGraphics, headingAngle2D, naturalBrushRotation, radius, callback) {
         mainGraphics.imageMode(CENTER);
         for (let i = 0; i < this.maxSegments; i++) {
-            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
+            const t = i / this.maxSegments;
+            const lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, t);
+            
             mainGraphics.push();
             mainGraphics.translate(lerpPoint.x, lerpPoint.y);
+            
+            // 處理筆刷旋轉
             if (this.isBrushRotateFollowVelocity) {
                 mainGraphics.rotate(headingAngle2D);
             }
             mainGraphics.rotate(this.brushAngleNoiseAmplitude * naturalBrushRotation);
-            mainGraphics.image(this.brush.getImage(), 0, 0, radius, radius);
+            
+            // 執行特定的渲染邏輯
+            callback();
+            
             mainGraphics.pop();
         }
     }
 
+    // 渲染 brushImage 類型
+    renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, radius) {
+        this.#renderBrushCommon(
+            mainGraphics, 
+            headingAngle2D,
+            naturalBrushRotation,
+            radius,
+            () => {
+                mainGraphics.image(this.brush.getImage(), 0, 0, radius, radius);
+            }
+        );
+    }
+
     // 渲染 brushImageLerp 類型
     renderBrushImageLerp(mainGraphics, headingAngle2D, naturalBrushRotation, radius) {
-        let lerpFactor = this.brushLerpMap(this.lifespan / this.originalLive);
-        mainGraphics.imageMode(CENTER);
-        for (let i = 0; i < this.maxSegments; i++) {
-            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
-            mainGraphics.push();
-            mainGraphics.translate(lerpPoint.x, lerpPoint.y);
-            if (this.isBrushRotateFollowVelocity) {
-                mainGraphics.rotate(headingAngle2D);
+        const lerpFactor = this.brushLerpMap(this.lifespan / this.originalLive);
+        
+        this.#renderBrushCommon(
+            mainGraphics,
+            headingAngle2D,
+            naturalBrushRotation,
+            radius,
+            () => {
+                // 繪製第一個筆刷
+                mainGraphics.drawingContext.globalAlpha = lerpFactor;
+                mainGraphics.image(this.brush.getImage(), 0, 0, radius, radius);
+                
+                // 如果有第二個筆刷，則進行混合
+                if (this.brush2) {
+                    mainGraphics.drawingContext.globalAlpha = 1 - lerpFactor;
+                    mainGraphics.image(this.brush2.getImage(), 0, 0, radius, radius);
+                }
             }
-            mainGraphics.rotate(this.brushAngleNoiseAmplitude * naturalBrushRotation);
-            mainGraphics.drawingContext.globalAlpha = lerpFactor;
-            mainGraphics.image(this.brush.getImage(), 0, 0, radius, radius);
-            if (this.brush2) {
-                mainGraphics.drawingContext.globalAlpha = 1 - lerpFactor;
-                mainGraphics.image(this.brush2.getImage(), 0, 0, radius, radius);
-            }
-            mainGraphics.pop();
-        }
+        );
     }
 
     // 渲染 brush 類型
