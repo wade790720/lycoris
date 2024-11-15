@@ -21,12 +21,12 @@ let debug = false;
 let layerSystem, brushSystem
 
 function preload() {
-  overAllTexture = loadImage("canvas-light-6k.jpg");
+  overAllTexture = loadImage("assets/canvas-light-6k.jpg");
 }
 
 function setup() {
   pixelDensity(3);
-  cnv = createCanvas(1000, 1000);
+  cnv = createCanvas(windowWidth, windowHeight);
 
   mainGraphics = createGraphics(width, height);
 
@@ -158,52 +158,109 @@ function draw() {
 
 }
 
+
+/**
+ * 滑鼠控制相關功能
+ */
+
+// 滑鼠滾輪控制縮放
 function mouseWheel(event) {
-  zoom *= event.delta > 0 ? 1.1 : 0.9; // Adjust the zoom based on mouse wheel scroll
-  zoom = constrain(zoom, 0.1, 10); // Constrain zoom to reasonable values
+  const ZOOM_FACTOR = 1.1;
+  const MIN_ZOOM = 0.1;
+  const MAX_ZOOM = 10;
+
+  // 根據滾輪方向調整縮放
+  zoom *= event.delta > 0 ? ZOOM_FACTOR : 1/ZOOM_FACTOR;
+  
+  // 限制縮放範圍
+  zoom = constrain(zoom, MIN_ZOOM, MAX_ZOOM);
 }
 
+// 滑鼠拖曳控制視角
 function mouseDragged() {
+  const FOV_SENSITIVITY = 2;      // FOV 調整靈敏度
+  const PAN_SENSITIVITY = 0.1;    // 平移靈敏度  
+  const ROTATION_SENSITIVITY = 0.01; // 旋轉靈敏度
+
+  // 計算滑鼠移動距離
   let deltaX = mouseX - previousMouseX;
   let deltaY = mouseY - previousMouseY;
 
   if (isDragging) {
-    fov += deltaY * 2; // Adjust FOV based on vertical drag distance
-    fov = constrain(fov, 50, 1000); // Constrain FOV to reasonable values
-  } else if (isPanning) {
-    cameraPosition.x -= deltaX * 0.1;
-    cameraPosition.y += deltaY * 0.1;
-  } else {
-    angleY += deltaX * 0.01;
-    angleX -= deltaY * 0.01;
+    // Shift + 拖曳: 調整視野範圍(FOV)
+    fov += deltaY * FOV_SENSITIVITY;
+    fov = constrain(fov, 50, 1000);
+  } 
+  else if (isPanning) {
+    // 右鍵拖曳: 平移視角
+    cameraPosition.x -= deltaX * PAN_SENSITIVITY;
+    cameraPosition.y += deltaY * PAN_SENSITIVITY;
+  } 
+  else {
+    // 一般拖曳: 旋轉視角
+    angleY += deltaX * ROTATION_SENSITIVITY; // 水平旋轉
+    angleX -= deltaY * ROTATION_SENSITIVITY; // 垂直旋轉
   }
 
+  // 更新滑鼠位置
+  updatePreviousMousePosition();
+}
+
+// 更新前一幀的滑鼠位置
+function updatePreviousMousePosition() {
   previousMouseX = mouseX;
   previousMouseY = mouseY;
 }
 
-function mouseMoved() {
-  // autoControl=false
-}
-
+// 滑鼠按下時的處理
 function mousePressed() {
-  previousMouseX = mouseX;
-  previousMouseY = mouseY;
-  isDragging = keyIsDown(SHIFT); // Enable FOV adjustment if Shift key is held down
-  isPanning = mouseButton === RIGHT; // Enable panning if right mouse button is held down
+  updatePreviousMousePosition();
+  
+  // 檢查特殊按鍵狀態
+  isDragging = keyIsDown(SHIFT);  // Shift 鍵狀態
+  isPanning = mouseButton === RIGHT; // 右鍵狀態
 }
 
+// 滑鼠放開時的處理
 function mouseReleased() {
+  // 重置拖曳狀態
   isDragging = false;
   isPanning = false;
 }
 
+// 鍵盤控制
 function keyPressed() {
-  if (key === ']') {
-    fov *= 1.1; // Increase zoom
-  } else if (key === '[') {
-    fov /= 1.1; // Decrease zoom
-  } else if (key === "s") {
-    save("240614 Flower of the Other Shore .jpg");
+  // 定義快捷鍵映射
+  const KEY_ACTIONS = {
+    ']': () => adjustFOV(1.1),
+    '}': () => adjustFOV(1.1), 
+    '[': () => adjustFOV(1/1.1),
+    '{': () => adjustFOV(1/1.1),
+    's': downloadJPEG,
+    'r': resetFOV
+  };
+
+  // 執行對應的動作
+  const action = KEY_ACTIONS[key];
+  if (action) {
+    action();
   }
+}
+
+// 調整視野範圍
+function adjustFOV(factor) {
+  fov = constrain(fov * factor, 50, 1000);
+}
+
+// 儲存畫布
+function downloadJPEG() {
+  const timestamp = new Date().toISOString()
+    .slice(0,19)
+    .replace(/[-:]/g,'');
+  save(`Lycoris_${timestamp}.jpg`);
+}
+
+// 重置視野範圍
+function resetFOV() {
+  fov = 500;
 }
