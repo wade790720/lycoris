@@ -92,10 +92,10 @@ function generateFlowerPlant(pos) {
 
 	particles.push(new Particle({
 		p: pos.copy(),
-		v: vec,
+		vector: vec,
 		velocityShrinkFactor: 0.995,
 		radiusShrinkFactor: 0.995,
-		a: createVector(0, -0.01, 0),
+		acceleration: createVector(0, -0.01, 0),
 		radius: random(15, 25),
 		color: color(100, 100, 100),
 		preDelay: 0,
@@ -122,27 +122,30 @@ function generateFlowerPlant(pos) {
 
 // 生成花朵
 function generateFlower(_this) {
+    console.log(_this);
 	let flowerScale = random(0.5, 0.8) / 2;
 	let delayFlower = 0;
-	let flowerCenterV = random3DRotate(_this.v.copy(), random(PI / 2) * random(0.5, 1));
+	let flowerCenterV = random3DRotate(_this.vector.copy(), random(PI / 2) * random(0.5, 1));
 
-	let vc1 = _this.v.cross(createVector(1, 0, -_this.v.x / _this.v.z)).normalize();
-	let vc1_tilted = p5.Vector.lerp(vc1, _this.v, random(0.3, 0.5)).normalize();
+	let vc1 = _this.vector.cross(createVector(1, 0, -_this.vector.x / _this.vector.z)).normalize();
+	let vc1_tilted = p5.Vector.lerp(vc1, _this.vector, random(0.3, 0.5)).normalize();
 	let petalCount = int(random(20, 40));
 	let flowerRadius = random(30, 50);
 	let startAng = random(PI);
 	let rotateFactor = random(0.3, 1.2);
 
+    
+
 	// 生成花瓣
 	for (let i = 0; i < petalCount; i++) {
-		let vc_final = random3DRotate(rotateVectorAroundAxis(vc1_tilted, _this.v, startAng + i / petalCount * 2 * PI), random(PI / 3));
+		let vc_final = random3DRotate(rotateVectorAroundAxis(vc1_tilted, _this.vector, startAng + i / petalCount * 2 * PI), random(PI / 3));
 		let _r = flowerRadius * flowerScale;
 		let pos = _this.p.copy();
 
 		particles.push(new Particle({
 			p: pos,
 			radius: _r,
-			v: vc_final.copy().normalize().mult(1.2),
+			vector: vc_final.copy().normalize().mult(1.2),
 			radiusShrinkFactor: 0.995,
 			lifespan: _r * 2,
 			velocityShrinkFactor: 1.02,
@@ -161,11 +164,11 @@ function generateFlower(_this) {
 			},
 			tick(_this) {
 				let amp = 1 / pow(map(_this.lifespan / _this.originalLive, 1, 0, 3, 0.3), 2) / 10 * rotateFactor;
-				_this.v = rotateVectorInPlane(flowerCenterV, vc_final, _this.v, amp);
-				_this.v = rotateY3D(_this.v, +sin(frameCount / 4 + _this.randomId + noise(frameCount / 3, _this.randomId)) / 30);
-				_this.v = rotateZ3D(_this.v, +cos(frameCount / 6 + _this.randomId + noise(frameCount / 3, _this.randomId, 50)) / 30);
-				_this.v = rotateX3D(_this.v, +sin(frameCount / 7 + _this.randomId + noise(frameCount / 3, _this.randomId, 500)) / 30);
-				_this.v = rotateZ3D(_this.v, +sin(frameCount / 50 + _this.randomId + noise(frameCount / 50, _this.randomId)) / 30);
+				_this.vector = rotateVectorInPlane(flowerCenterV, vc_final, _this.vector, amp);
+				_this.vector = rotateY3D(_this.vector, +sin(frameCount / 4 + _this.randomId + noise(frameCount / 3, _this.randomId)) / 30);
+				_this.vector = rotateZ3D(_this.vector, +cos(frameCount / 6 + _this.randomId + noise(frameCount / 3, _this.randomId, 50)) / 30);
+				_this.vector = rotateX3D(_this.vector, +sin(frameCount / 7 + _this.randomId + noise(frameCount / 3, _this.randomId, 500)) / 30);
+				_this.vector = rotateZ3D(_this.vector, +sin(frameCount / 50 + _this.randomId + noise(frameCount / 50, _this.randomId)) / 30);
 			},
 		}));
 	}
@@ -174,15 +177,15 @@ function generateFlower(_this) {
 	flowerRadius = random(30, 40);
 	petalCount = random(35, 40);
 	for (let i = 0; i < petalCount; i++) {
-		vc1_tilted = p5.Vector.lerp(vc1, _this.v, -random(0.00, 0.21)).normalize();
-		let vc_final = rotateVectorAroundAxis(vc1_tilted, _this.v, startAng + i / petalCount * 2 * PI);
+		vc1_tilted = p5.Vector.lerp(vc1, _this.vector, -random(0.00, 0.21)).normalize();
+		let vc_final = rotateVectorAroundAxis(vc1_tilted, _this.vector, startAng + i / petalCount * 2 * PI);
 		let _r = flowerRadius * flowerScale;
 		let pos = _this.p.copy();
 
 		particles.push(new Particle({
 			p: pos,
 			radius: _r,
-			v: vc_final.copy().normalize().mult(-random(2, 3)),
+			vector: vc_final.copy().normalize().mult(-random(2, 3)),
 			radiusShrinkFactor: 0.975,
 			lifespan: _r * 2,
 			velocityShrinkFactor: 1.02,
@@ -196,7 +199,7 @@ function generateFlower(_this) {
 			renderType: "brushImageLerp",
 			tick(_this) {
 				let amp = 1 / pow(map(_this.lifespan / _this.originalLive, 1, 0, 3, 0.3), 2) / 5 * rotateFactor / 5;
-				_this.v = rotateVectorInPlane(flowerCenterV, vc_final, _this.v, amp);
+				_this.vector = rotateVectorInPlane(flowerCenterV, vc_final, _this.vector, amp);
 			},
 			endCallback: (_this) => {
 				generateFlowerEnd(_this);
@@ -211,7 +214,7 @@ function generateFlowerEnd(_this) {
 	particles.push(new Particle({
 		p: _this.p.copy(),
 		radius: _r,
-		v: random3DRotate(_this.v.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
+		vector: random3DRotate(_this.vector.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
 		radiusShrinkFactor: 0.98,
 		lifespan: _r * 2.5,
 		velocityShrinkFactor: 0.9,
@@ -227,9 +230,6 @@ function generateFlowerEnd(_this) {
 			let _p = easeInOutQuad(p);
 			let rr = sqrt(1 - pow(map(_p, 0, 1, -1, 1), 2));
 			return rr;
-		},
-		tick(_this) {
-			// 此處可以添加其他需要的更新操作
 		}
 	}));
 }

@@ -34,8 +34,8 @@ class Particle {
             // 物理運動相關配置
             lastPosition: createVector(0, 0, 0),
             p: createVector(0, 0, 0),
-            v: createVector(0, 0, 0),
-            a: createVector(0, 0, 0),
+            vector: createVector(0, 0, 0),
+            acceleration: createVector(0, 0, 0),
             radius: random(),
             speedLimit: random(5, 100),
             radiusShrinkFactor: 0.995,
@@ -63,10 +63,10 @@ class Particle {
 
         this.updateCount++;
         this.lastPosition = this.p.copy();
-        this.p.add(this.v);
-        this.v.add(this.a);
-        this.v.limit(this.radius * this.speedLimit);
-        this.v.mult(this.velocityShrinkFactor);
+        this.p.add(this.vector);
+        this.vector.add(this.acceleration);
+        this.vector.limit(this.radius * this.speedLimit);
+        this.vector.mult(this.velocityShrinkFactor);
         this.lifespan -= 1;
         this.radius *= this.radiusShrinkFactor;
 
