@@ -111,7 +111,7 @@ class Particle {
         rotatedP = rotateZ3D(rotatedP, angleZ);
 
         // 投影3D點到2D平面
-        let p2D = project3Dto2D(rotatedP, camera, fov, zoom);
+        const p2D = project3Dto2D(rotatedP, camera, fov, zoom);
         this.p2D = this.applyRenderJitter(p2D);
 
         // 旋轉當前粒子位置
@@ -120,43 +120,35 @@ class Particle {
         rotatedP2 = rotateZ3D(rotatedP2, angleZ);
 
         // 投影3D點到2D平面
-        let p2D2 = project3Dto2D(rotatedP2, camera, fov, zoom);
+        const p2D2 = project3Dto2D(rotatedP2, camera, fov, zoom);
         this.p2D2 = this.applyRenderJitter(p2D2);
 
         // 計算當前粒子半徑
-        let _r = this.calculateRadius();
+        const currentRadius = this.calculateRadius();
 
         // 計算2D方向角
-        let headingAngle2D = this.p2D2.copy().sub(this.p2D).heading();
-        let naturalBrushRotation = noise(frameCount / 50, this.randomId) * 5 + frameCount / 100;
+        const headingAngle2D = this.p2D2.copy().sub(this.p2D).heading();
+        const naturalBrushRotation = noise(frameCount / 50, this.randomId) * 5 + frameCount / 100;
 
-        // 繪製根據不同渲染類型
-        if (this.originalLive != this.lifespan) {
-            switch (this.renderType) {
-                case "brushImage":
-                    this.renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, _r);
-                    break;
-                case "brushImageLerp":
-                    this.renderBrushImageLerp(mainGraphics, headingAngle2D, naturalBrushRotation, _r);
-                    break;
-                case "brush":
-                    this.renderBrush(mainGraphics, _r);
-                    break;
-                case "splash":
-                    this.renderSplash(mainGraphics);
-                    break;
-                case "line":
-                    this.renderLine(mainGraphics);
-                    break;
-                case "history":
-                    this.renderHistory(mainGraphics, angleX, angleY, angleZ, camera, fov, zoom);
-                    break;
-                default:
-                    mainGraphics.fill(this.color);
-                    mainGraphics.circle(this.p2D.x, this.p2D.y, _r);
-                    break;
+        // 只在粒子存活時進行渲染
+        if (this.originalLive === this.lifespan) return;
+
+        // 定義渲染方法映射表
+        const renderMethods = {
+            brushImage: () => this.renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, currentRadius),
+            brushImageLerp: () => this.renderBrushImageLerp(mainGraphics, headingAngle2D, naturalBrushRotation, currentRadius), 
+            brush: () => this.renderBrush(mainGraphics, currentRadius),
+            splash: () => this.renderSplash(mainGraphics),
+            line: () => this.renderLine(mainGraphics),
+            history: () => this.renderHistory(mainGraphics, angleX, angleY, angleZ, camera, fov, zoom),
+            default: () => {
+                mainGraphics.fill(this.color);
+                mainGraphics.circle(this.p2D.x, this.p2D.y, currentRadius);
             }
-        }
+        };
+
+        // 執行對應的渲染方法,若無對應方法則執行預設渲染
+        (renderMethods[this.renderType] || renderMethods.default)();
 
         // 呼叫額外的繪圖輔助函數
         if (this.draw2D) {
@@ -168,7 +160,7 @@ class Particle {
     }
 
     // 渲染 brushImage 類型
-    renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, _r) {
+    renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, radius) {
         mainGraphics.imageMode(CENTER);
         for (let i = 0; i < this.maxSegments; i++) {
             let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
@@ -178,13 +170,13 @@ class Particle {
                 mainGraphics.rotate(headingAngle2D);
             }
             mainGraphics.rotate(this.brushAngleNoiseAmplitude * naturalBrushRotation);
-            mainGraphics.image(this.brush.getImage(), 0, 0, _r, _r);
+            mainGraphics.image(this.brush.getImage(), 0, 0, radius, radius);
             mainGraphics.pop();
         }
     }
 
     // 渲染 brushImageLerp 類型
-    renderBrushImageLerp(mainGraphics, headingAngle2D, naturalBrushRotation, _r) {
+    renderBrushImageLerp(mainGraphics, headingAngle2D, naturalBrushRotation, radius) {
         let lerpFactor = this.brushLerpMap(this.lifespan / this.originalLive);
         mainGraphics.imageMode(CENTER);
         for (let i = 0; i < this.maxSegments; i++) {
@@ -196,22 +188,22 @@ class Particle {
             }
             mainGraphics.rotate(this.brushAngleNoiseAmplitude * naturalBrushRotation);
             mainGraphics.drawingContext.globalAlpha = lerpFactor;
-            mainGraphics.image(this.brush.getImage(), 0, 0, _r, _r);
+            mainGraphics.image(this.brush.getImage(), 0, 0, radius, radius);
             if (this.brush2) {
                 mainGraphics.drawingContext.globalAlpha = 1 - lerpFactor;
-                mainGraphics.image(this.brush2.getImage(), 0, 0, _r, _r);
+                mainGraphics.image(this.brush2.getImage(), 0, 0, radius, radius);
             }
             mainGraphics.pop();
         }
     }
 
     // 渲染 brush 類型
-    renderBrush(mainGraphics, _r) {
+    renderBrush(mainGraphics, radius) {
         for (let i = 0; i < this.maxSegments; i++) {
             let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
             for (let j = 0; j < 3; j++) {
                 mainGraphics.stroke(this.color);
-                mainGraphics.strokeWeight(_r * 0.8);
+                mainGraphics.strokeWeight(radius * 0.8);
                 mainGraphics.point(lerpPoint.x + random(random(-1, 1)) * 1.2, lerpPoint.y + random(random(-1, 1)) * 1.2);
             }
         }
@@ -223,9 +215,18 @@ class Particle {
             this.color.setAlpha(random(1));
             mainGraphics.stroke(this.color);
             mainGraphics.strokeWeight(random(1.5));
-            let rr = (1 - random(random())) * this.r * 0.5 * random(0.9, 1.1);
-            let ang = random(2 * PI);
-            mainGraphics.point(this.p2D.x + rr * cos(ang), this.p2D.y + rr * sin(ang));
+            
+            // splashRadius 是計算濺射效果的隨機半徑 (random radius)
+            let splashRadius = (1 - random(random())) * this.radius * 0.5 * random(0.9, 1.1);
+            
+            // splashAngle 是濺射效果的隨機角度 (angle)
+            let splashAngle = random(TWO_PI);
+            
+            // 使用極座標計算濺射效果的位置
+            mainGraphics.point(
+                this.p2D.x + splashRadius * cos(splashAngle),
+                this.p2D.y + splashRadius * sin(splashAngle)
+            );
         }
         this.color.setAlpha(1);
     }
@@ -244,23 +245,26 @@ class Particle {
     }
 
     // 渲染 history 類型
-    renderHistory(mainGraphics, angleX, angleY, angleZ, camera, fov, zoom) {
+    renderTrajectory(graphics, rotationX, rotationY, rotationZ, cameraPosition, fieldOfView, zoomLevel) {
         this.color.setAlpha(1);
-        mainGraphics.push();
-        mainGraphics.stroke(typeof this.brush?.color === "object" ? this.brush.color : this.color);
-        mainGraphics.strokeWeight(1);
-        mainGraphics.noFill();
-        mainGraphics.beginShape();
-        for (let index = 0; index < this.history.length; index++) {
-            let pos = this.history[index];
-            let rotatedPos = rotateY3D(pos, angleY);
-            rotatedPos = rotateX3D(rotatedPos, angleX);
-            rotatedPos = rotateZ3D(rotatedPos, angleZ);
-            let pos2D = project3Dto2D(rotatedPos, camera, fov, zoom);
-            mainGraphics.curveVertex(pos2D.x, pos2D.y);
+        graphics.push();
+        graphics.stroke(typeof this.brush?.color === "object" ? this.brush.color : this.color);
+        graphics.strokeWeight(1);
+        graphics.noFill();
+        graphics.beginShape();
+        
+        for (let i = 0; i < this.history.length; i++) {
+            const position3D = this.history[i];
+            let transformedPosition = rotateY3D(position3D, rotationY);
+            transformedPosition = rotateX3D(transformedPosition, rotationX); 
+            transformedPosition = rotateZ3D(transformedPosition, rotationZ);
+            
+            const position2D = project3Dto2D(transformedPosition, cameraPosition, fieldOfView, zoomLevel);
+            graphics.curveVertex(position2D.x, position2D.y);
         }
-        mainGraphics.endShape();
-        mainGraphics.pop();
+        
+        graphics.endShape();
+        graphics.pop();
     }
 
     // 渲染抖動應用函數
@@ -274,10 +278,10 @@ class Particle {
 
     // 計算半徑函數
     calculateRadius() {
-        let _r = this.r * (this.radiusMappingFunc ? this.radiusMappingFunc(constrain(this.lifespan / this.originalLive, 0.000001, 1), this) : 1);
-        if (isNaN(_r) || _r <= 0) _r = 0.001;
+        let radius = this.r * (this.radiusMappingFunc ? this.radiusMappingFunc(constrain(this.lifespan / this.originalLive, 0.000001, 1), this) : 1);
+        if (isNaN(radius) || radius <= 0) radius = 0.001;
 
-        return _r;
+        return radius;
     }
 }
 
