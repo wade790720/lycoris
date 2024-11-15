@@ -87,7 +87,7 @@ function rotateVectorInPlane(v1, v2, v4, ang) {
 // 生成花朵植物
 function generateFlowerPlant(pos) {
 	colorMode(HSB);
-	let plantGrowthDirection = random3DRotate(createVector(0, -random(0.9, 1) - 1, 0), random(PI / 2));
+	let plantGrowthDirection = Rotation3D.rotateRandom(createVector(0, -random(0.9, 1) - 1, 0), random(PI / 2));
 	let plantDrawingLayer = layerSystem.getRandomLayer(0);
 
 	particles.push(new Particle({
@@ -125,7 +125,7 @@ function generateFlower(_this) {
     console.log(_this);
 	let flowerScale = random(0.5, 0.8) / 2;
 	let delayFlower = 0;
-	let flowerCenterV = random3DRotate(_this.vector.copy(), random(PI / 2) * random(0.5, 1));
+	let flowerCenterV = Rotation3D.rotateRandom(_this.vector.copy(), random(PI / 2) * random(0.5, 1));
 
 	let vc1 = _this.vector.cross(createVector(1, 0, -_this.vector.x / _this.vector.z)).normalize();
 	let vc1_tilted = p5.Vector.lerp(vc1, _this.vector, random(0.3, 0.5)).normalize();
@@ -138,7 +138,7 @@ function generateFlower(_this) {
 
 	// 生成花瓣
 	for (let i = 0; i < petalCount; i++) {
-		let vc_final = random3DRotate(rotateVectorAroundAxis(vc1_tilted, _this.vector, startAng + i / petalCount * 2 * PI), random(PI / 3));
+		let vc_final = Rotation3D.rotateRandom(Rotation3D.rotateAroundAxis(vc1_tilted, _this.vector, startAng + i / petalCount * 2 * PI), random(PI / 3));
 		let _r = flowerRadius * flowerScale;
 		let pos = _this.p.copy();
 
@@ -165,10 +165,10 @@ function generateFlower(_this) {
 			tick(_this) {
 				let amp = 1 / pow(map(_this.lifespan / _this.originalLive, 1, 0, 3, 0.3), 2) / 10 * rotateFactor;
 				_this.vector = rotateVectorInPlane(flowerCenterV, vc_final, _this.vector, amp);
-				_this.vector = rotateY3D(_this.vector, +sin(frameCount / 4 + _this.randomId + noise(frameCount / 3, _this.randomId)) / 30);
-				_this.vector = rotateZ3D(_this.vector, +cos(frameCount / 6 + _this.randomId + noise(frameCount / 3, _this.randomId, 50)) / 30);
-				_this.vector = rotateX3D(_this.vector, +sin(frameCount / 7 + _this.randomId + noise(frameCount / 3, _this.randomId, 500)) / 30);
-				_this.vector = rotateZ3D(_this.vector, +sin(frameCount / 50 + _this.randomId + noise(frameCount / 50, _this.randomId)) / 30);
+				_this.vector = Rotation3D.rotateY(_this.vector, +sin(frameCount / 4 + _this.randomId + noise(frameCount / 3, _this.randomId)) / 30);
+				_this.vector = Rotation3D.rotateZ(_this.vector, +cos(frameCount / 6 + _this.randomId + noise(frameCount / 3, _this.randomId, 50)) / 30);
+				_this.vector = Rotation3D.rotateX(_this.vector, +sin(frameCount / 7 + _this.randomId + noise(frameCount / 3, _this.randomId, 500)) / 30);
+				_this.vector = Rotation3D.rotateZ(_this.vector, +sin(frameCount / 50 + _this.randomId + noise(frameCount / 50, _this.randomId)) / 30);
 			},
 		}));
 	}
@@ -178,7 +178,7 @@ function generateFlower(_this) {
 	petalCount = random(35, 40);
 	for (let i = 0; i < petalCount; i++) {
 		vc1_tilted = p5.Vector.lerp(vc1, _this.vector, -random(0.00, 0.21)).normalize();
-		let vc_final = rotateVectorAroundAxis(vc1_tilted, _this.vector, startAng + i / petalCount * 2 * PI);
+		let vc_final = Rotation3D.rotateAroundAxis(vc1_tilted, _this.vector, startAng + i / petalCount * 2 * PI);
 		let _r = flowerRadius * flowerScale;
 		let pos = _this.p.copy();
 
@@ -214,7 +214,7 @@ function generateFlowerEnd(_this) {
 	particles.push(new Particle({
 		p: _this.p.copy(),
 		radius: _r,
-		vector: random3DRotate(_this.vector.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
+		vector: Rotation3D.rotateRandom(_this.vector.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
 		radiusShrinkFactor: 0.98,
 		lifespan: _r * 2.5,
 		velocityShrinkFactor: 0.9,

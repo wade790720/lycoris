@@ -26,7 +26,7 @@ function preload() {
 
 function setup() {
   pixelDensity(3);
-  cnv = createCanvas(windowWidth, windowHeight);
+  cnv = createCanvas(1000, 1000);
 
   mainGraphics = createGraphics(width, height);
 
@@ -69,7 +69,7 @@ function draw() {
 
 
   if (debug) {
-    drawAxes();
+    Graphics3D.drawAxes();
   }
 
   mainGraphics.stroke(0);
@@ -138,7 +138,7 @@ function draw() {
 
   if (debug) {
     noStroke()
-    drawCrosshair(mouseX, mouseY);
+    Graphics3D.drawCrosshair(mouseX, mouseY);
     fill(255);
     text([angleX, angleY, angleZ, cameraPosition, fov, zoom, "Count:" + particles.length, "Time: " + frameCount].join("\n"), 0, 10);
   }
