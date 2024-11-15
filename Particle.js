@@ -36,7 +36,7 @@ class Particle {
             p: createVector(0, 0, 0),
             v: createVector(0, 0, 0),
             a: createVector(0, 0, 0),
-            r: random(),
+            radius: random(),
             speedLimit: random(5, 100),
             radiusShrinkFactor: 0.995,
             velocityShrinkFactor: 0.995
@@ -65,10 +65,10 @@ class Particle {
         this.lastPosition = this.p.copy();
         this.p.add(this.v);
         this.v.add(this.a);
-        this.v.limit(this.r * this.speedLimit);
+        this.v.limit(this.radius * this.speedLimit);
         this.v.mult(this.velocityShrinkFactor);
         this.lifespan -= 1;
-        this.r *= this.radiusShrinkFactor;
+        this.radius *= this.radiusShrinkFactor;
 
         // 記錄當前位置到歷史記錄
         let sampleRate = 3;
@@ -83,7 +83,7 @@ class Particle {
         if (this.lifespan == this.originalLive - 1) {
             this.history.push(this.p.copy());
         }
-        if (this.r < 0.1 || this.lifespan < 0) {
+        if (this.radius < 0.1 || this.lifespan < 0) {
             this.history.push(this.p.copy());
             if (this.endCallback) this.endCallback(this);
             this.isAlive = false;
@@ -237,7 +237,7 @@ class Particle {
         for (let i = 0; i < 1; i++) {
             mainGraphics.stroke(this.color);
             for (let j = 0; j < 3; j++) {
-                mainGraphics.strokeWeight(this.r * 8);
+                mainGraphics.strokeWeight(this.radius * 8);
                 mainGraphics.line(this.p2D.x, this.p2D.y, this.p2D2.x, this.p2D2.y);
             }
         }
@@ -303,7 +303,7 @@ class Particle {
     }
     // 計算半徑函數
     calculateRadius() {
-        let radius = this.r * (this.radiusMappingFunc ? this.radiusMappingFunc(constrain(this.lifespan / this.originalLive, 0.000001, 1), this) : 1);
+        let radius = this.radius * (this.radiusMappingFunc ? this.radiusMappingFunc(constrain(this.lifespan / this.originalLive, 0.000001, 1), this) : 1);
         if (isNaN(radius) || radius <= 0) radius = 0.001;
 
         return radius;

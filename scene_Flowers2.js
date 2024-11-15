@@ -96,7 +96,7 @@ function generateFlowerPlant(pos) {
 		velocityShrinkFactor: 0.995,
 		radiusShrinkFactor: 0.995,
 		a: createVector(0, -0.01, 0),
-		r: random(15, 25),
+		radius: random(15, 25),
 		color: color(100, 100, 100),
 		preDelay: 0,
 		renderJitter: 5,
@@ -141,7 +141,7 @@ function generateFlower(_this) {
 
 		particles.push(new Particle({
 			p: pos,
-			r: _r,
+			radius: _r,
 			v: vc_final.copy().normalize().mult(1.2),
 			radiusShrinkFactor: 0.995,
 			lifespan: _r * 2,
@@ -181,7 +181,7 @@ function generateFlower(_this) {
 
 		particles.push(new Particle({
 			p: pos,
-			r: _r,
+			radius: _r,
 			v: vc_final.copy().normalize().mult(-random(2, 3)),
 			radiusShrinkFactor: 0.975,
 			lifespan: _r * 2,
@@ -210,7 +210,7 @@ function generateFlowerEnd(_this) {
 	let _r = random(4, 8);
 	particles.push(new Particle({
 		p: _this.p.copy(),
-		r: _r,
+		radius: _r,
 		v: random3DRotate(_this.v.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
 		radiusShrinkFactor: 0.98,
 		lifespan: _r * 2.5,
