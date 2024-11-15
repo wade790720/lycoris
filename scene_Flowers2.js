@@ -93,16 +93,16 @@ function generateFlowerPlant(pos) {
 	particles.push(new Particle({
 		p: pos.copy(),
 		v: vec,
-		vShrinkFactor: 0.995,
-		rShrinkFactor: 0.995,
+		velocityShrinkFactor: 0.995,
+		radiusShrinkFactor: 0.995,
 		a: createVector(0, -0.01, 0),
 		r: random(15, 25),
 		color: color(100, 100, 100),
 		preDelay: 0,
 		renderJitter: 5,
-		live: random(40, 250),
+		lifespan: random(40, 250),
 		mainGraphics: layer.graphics,
-		maxSeg: 10,
+		maxSegments: 10,
 		brush: random(plantBrushes),
 		brush2: random(plantBrushes),
 		renderType: "brushImageLerp",
@@ -143,24 +143,24 @@ function generateFlower(_this) {
 			p: pos,
 			r: _r,
 			v: vc_final.copy().normalize().mult(1.2),
-			rShrinkFactor: 0.995,
-			live: _r * 2,
-			vShrinkFactor: 1.02,
+			radiusShrinkFactor: 0.995,
+			lifespan: _r * 2,
+			velocityShrinkFactor: 1.02,
 			preDelay: delayFlower,
 			mainGraphics: _this.mainGraphics,
 			color: color(0, 100, 100),
 			brush: random(random([redBlackBrushes, redWhiteBrushes, useBrushesRed])),
 			brush2: random(random([redBlackBrushes, redWhiteBrushes, useBrushesRed])),
 			brushLerpMap: k => k,
-			maxSeg: 5,
+			maxSegments: 5,
 			renderType: "brushImageLerp",
-			rMappingFunc: (p) => {
-				let _p = easeOutSine(easeOutSine(p)) + noise(_this.randomId, _this.live / 10) / 10;
+			radiusMappingFunc: (p) => {
+				let _p = easeOutSine(easeOutSine(p)) + noise(_this.randomId, _this.lifespan / 10) / 10;
 				let rr = sqrt(1 - pow(map(_p, 0, 1, -1, 1), 2)) * 1.4;
 				return rr;
 			},
 			tick(_this) {
-				let amp = 1 / pow(map(_this.live / _this.originalLive, 1, 0, 3, 0.3), 2) / 10 * rotateFactor;
+				let amp = 1 / pow(map(_this.lifespan / _this.originalLive, 1, 0, 3, 0.3), 2) / 10 * rotateFactor;
 				_this.v = rotateVectorInPlane(flowerCenterV, vc_final, _this.v, amp);
 				_this.v = rotateY3D(_this.v, +sin(frameCount / 4 + _this.randomId + noise(frameCount / 3, _this.randomId)) / 30);
 				_this.v = rotateZ3D(_this.v, +cos(frameCount / 6 + _this.randomId + noise(frameCount / 3, _this.randomId, 50)) / 30);
@@ -183,19 +183,19 @@ function generateFlower(_this) {
 			p: pos,
 			r: _r,
 			v: vc_final.copy().normalize().mult(-random(2, 3)),
-			rShrinkFactor: 0.975,
-			live: _r * 2,
-			vShrinkFactor: 1.02,
+			radiusShrinkFactor: 0.975,
+			lifespan: _r * 2,
+			velocityShrinkFactor: 1.02,
 			preDelay: delayFlower,
 			mainGraphics: _this.mainGraphics,
 			color: color(0, 0, 100),
 			brush: random(random([redBlackBrushes, redWhiteBrushes, useBrushesRed])),
 			brush2: random(random([redBlackBrushes, redWhiteBrushes, useBrushesRed])),
 			brushLerpMap: k => k,
-			maxSeg: 8,
+			maxSegments: 8,
 			renderType: "brushImageLerp",
 			tick(_this) {
-				let amp = 1 / pow(map(_this.live / _this.originalLive, 1, 0, 3, 0.3), 2) / 5 * rotateFactor / 5;
+				let amp = 1 / pow(map(_this.lifespan / _this.originalLive, 1, 0, 3, 0.3), 2) / 5 * rotateFactor / 5;
 				_this.v = rotateVectorInPlane(flowerCenterV, vc_final, _this.v, amp);
 			},
 			endCallback: (_this) => {
@@ -212,18 +212,18 @@ function generateFlowerEnd(_this) {
 		p: _this.p.copy(),
 		r: _r,
 		v: random3DRotate(_this.v.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
-		rShrinkFactor: 0.98,
-		live: _r * 2.5,
-		vShrinkFactor: 0.9,
+		radiusShrinkFactor: 0.98,
+		lifespan: _r * 2.5,
+		velocityShrinkFactor: 0.9,
 		preDelay: 0,
 		mainGraphics: _this.mainGraphics,
 		color: color(50, 100, 100),
 		brush: random(flowerCenterYellowBrushes),
 		brush2: random(flowerCenterYellowBrushes),
 		brushLerpMap: k => k,
-		maxSeg: 5,
+		maxSegments: 5,
 		renderType: "brushImageLerp",
-		rMappingFunc: (p) => {
+		radiusMappingFunc: (p) => {
 			let _p = easeInOutQuad(p);
 			let rr = sqrt(1 - pow(map(_p, 0, 1, -1, 1), 2));
 			return rr;

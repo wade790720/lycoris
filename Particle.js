@@ -3,7 +3,6 @@ class Particle {
         this.state = {
             // 基本屬性配置
             randomId: random(50000),
-            gen: 0,
             mainGraphics: mainGraphics,
             color: color(255),
             charge: random(-5, 5) * random() * random() * random(),
@@ -16,22 +15,21 @@ class Particle {
             p2D: null,
             p2D2: null,
             brush: null,
-            maxSeg: 2,
+            maxSegments: 2,
             brushLerpMap: k => k,
-            rMappingFunc: null,
+            radiusMappingFunc: null,
             isBrushRotateFollowVelocity: true,
-            brushAngleNoiseAmpFactor: 0.2,
+            brushAngleNoiseAmplitude: 0.2,
             history: [],
 
             // 生命週期相關配置
-            alive: true,
-            live: int(random([100, 500])),
+            isAlive: true,
+            lifespan: int(random([100, 500])),
             originalLive: 0,
             updateCount: 0,
             tick: null,
             endCallback: null,
             preDelay: 0,
-            rShrinkFactor: 0.995,
 
             // 物理運動相關配置
             lastPosition: createVector(0, 0, 0),
@@ -40,7 +38,8 @@ class Particle {
             a: createVector(0, 0, 0),
             r: random(),
             speedLimit: random(5, 100),
-            vShrinkFactor: 0.995
+            radiusShrinkFactor: 0.995,
+            velocityShrinkFactor: 0.995
         };
 
         // 合併配置
@@ -49,7 +48,7 @@ class Particle {
 
         const pathColor = color(this.color)
         pathColor.setAlpha(200)
-        this.originalLive = this.live
+        this.originalLive = this.lifespan
         this.pathColor = pathColor
     }
 
@@ -58,7 +57,7 @@ class Particle {
             this.preDelay--;
             return;
         }
-        if (this.live < 0) {
+        if (this.lifespan < 0) {
             return;
         }
 
@@ -67,13 +66,13 @@ class Particle {
         this.p.add(this.v);
         this.v.add(this.a);
         this.v.limit(this.r * this.speedLimit);
-        this.v.mult(this.vShrinkFactor);
-        this.live -= 1;
-        this.r *= this.rShrinkFactor;
+        this.v.mult(this.velocityShrinkFactor);
+        this.lifespan -= 1;
+        this.r *= this.radiusShrinkFactor;
 
         // 記錄當前位置到歷史記錄
         let sampleRate = 3;
-        if ((frameCount + int(this.randomId)) % sampleRate == 0 && this.alive) {
+        if ((frameCount + int(this.randomId)) % sampleRate == 0 && this.isAlive) {
             this.history.push(this.p.copy());
         }
 
@@ -81,13 +80,13 @@ class Particle {
         if (this.history.length > 500) {
             this.history.shift();
         }
-        if (this.live == this.originalLive - 1) {
+        if (this.lifespan == this.originalLive - 1) {
             this.history.push(this.p.copy());
         }
-        if (this.r < 0.1 || this.live < 0) {
+        if (this.r < 0.1 || this.lifespan < 0) {
             this.history.push(this.p.copy());
             if (this.endCallback) this.endCallback(this);
-            this.alive = false;
+            this.isAlive = false;
         }
 
         // 額外呼叫的更新輔助函數
@@ -132,7 +131,7 @@ class Particle {
         let naturalBrushRotation = noise(frameCount / 50, this.randomId) * 5 + frameCount / 100;
 
         // 繪製根據不同渲染類型
-        if (this.originalLive != this.live) {
+        if (this.originalLive != this.lifespan) {
             switch (this.renderType) {
                 case "brushImage":
                     this.renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, _r);
@@ -171,14 +170,14 @@ class Particle {
     // 渲染 brushImage 類型
     renderBrushImage(mainGraphics, headingAngle2D, naturalBrushRotation, _r) {
         mainGraphics.imageMode(CENTER);
-        for (let i = 0; i < this.maxSeg; i++) {
-            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSeg);
+        for (let i = 0; i < this.maxSegments; i++) {
+            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
             mainGraphics.push();
             mainGraphics.translate(lerpPoint.x, lerpPoint.y);
             if (this.isBrushRotateFollowVelocity) {
                 mainGraphics.rotate(headingAngle2D);
             }
-            mainGraphics.rotate(this.brushAngleNoiseAmpFactor * naturalBrushRotation);
+            mainGraphics.rotate(this.brushAngleNoiseAmplitude * naturalBrushRotation);
             mainGraphics.image(this.brush.getImage(), 0, 0, _r, _r);
             mainGraphics.pop();
         }
@@ -186,16 +185,16 @@ class Particle {
 
     // 渲染 brushImageLerp 類型
     renderBrushImageLerp(mainGraphics, headingAngle2D, naturalBrushRotation, _r) {
-        let lerpFactor = this.brushLerpMap(this.live / this.originalLive);
+        let lerpFactor = this.brushLerpMap(this.lifespan / this.originalLive);
         mainGraphics.imageMode(CENTER);
-        for (let i = 0; i < this.maxSeg; i++) {
-            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSeg);
+        for (let i = 0; i < this.maxSegments; i++) {
+            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
             mainGraphics.push();
             mainGraphics.translate(lerpPoint.x, lerpPoint.y);
             if (this.isBrushRotateFollowVelocity) {
                 mainGraphics.rotate(headingAngle2D);
             }
-            mainGraphics.rotate(this.brushAngleNoiseAmpFactor * naturalBrushRotation);
+            mainGraphics.rotate(this.brushAngleNoiseAmplitude * naturalBrushRotation);
             mainGraphics.drawingContext.globalAlpha = lerpFactor;
             mainGraphics.image(this.brush.getImage(), 0, 0, _r, _r);
             if (this.brush2) {
@@ -208,8 +207,8 @@ class Particle {
 
     // 渲染 brush 類型
     renderBrush(mainGraphics, _r) {
-        for (let i = 0; i < this.maxSeg; i++) {
-            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSeg);
+        for (let i = 0; i < this.maxSegments; i++) {
+            let lerpPoint = p5.Vector.lerp(this.p2D, this.p2D2, i / this.maxSegments);
             for (let j = 0; j < 3; j++) {
                 mainGraphics.stroke(this.color);
                 mainGraphics.strokeWeight(_r * 0.8);
@@ -275,7 +274,7 @@ class Particle {
 
     // 計算半徑函數
     calculateRadius() {
-        let _r = this.r * (this.rMappingFunc ? this.rMappingFunc(constrain(this.live / this.originalLive, 0.000001, 1), this) : 1);
+        let _r = this.r * (this.radiusMappingFunc ? this.radiusMappingFunc(constrain(this.lifespan / this.originalLive, 0.000001, 1), this) : 1);
         if (isNaN(_r) || _r <= 0) _r = 0.001;
 
         return _r;

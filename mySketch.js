@@ -107,7 +107,7 @@ function draw() {
 
   // Remove dead particles
   if (!debug) {
-    particles = particles.filter(particle => particle.alive);
+    particles = particles.filter(particle => particle.isAlive);
   }
 
   // Sort particles by distance to the camera
