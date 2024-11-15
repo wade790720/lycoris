@@ -3,75 +3,114 @@ let useBrushesRed, useBrushesWhite, useBrushesBlack, useBrushesGreen, flowerCent
 	plantBrushes, redWhiteBrushes, redBlackBrushes;
 
 function generateFlowers() {
-	colorMode(HSB);
+  colorMode(HSB);
 
-	// 生成綠色畫刷
-	useBrushesGreen = Array.from({ length: 10 }).map(() => generateBrushHead({
-		brushColor: color(random(60, 115) + random() * random() * 10, random(80, 85) + random() * random() * 10, random(10, 60) + random() * random() * 20),
-		brushAlpha: 1,
-		brushNoiseScale: random(10, 300),
-		brushColorVariant: 0.6,
-		brushCanvasSize: 200,
-		aspectRatio: 0.2,
-	}));
+  // 定義畫刷生成設定
+  const brushConfigs = {
+    green: {
+      count: 10,
+      settings: {
+        brushColor: () => color(random(60, 115) + random() * random() * 10, 
+                              random(80, 85) + random() * random() * 10,
+                              random(10, 60) + random() * random() * 20),
+        brushAlpha: 1,
+        brushNoiseScale: () => random(10, 300),
+        brushColorVariant: 0.6,
+        brushCanvasSize: 200,
+        aspectRatio: 0.2
+      }
+    },
+    white: {
+      count: 5, 
+      settings: {
+        brushColor: () => color(random(0, 10), random(0, 20), random(90, 100)),
+        brushAlpha: 1,
+        brushNoiseScale: () => random(10, 500),
+        brushColorVariant: 0.5,
+        aspectRatio: 0.3,
+        brushCanvasSize: 200,
+        brushTimeFactor: 0.1
+      }
+    },
+    black: {
+      count: 5,
+      settings: {
+        brushColor: () => color(random(0, 10), random(0, 20), random(0, 30)),
+        brushAlpha: 0.8,
+        brushNoiseScale: () => random(10, 500),
+        brushColorVariant: 0.8,
+        aspectRatio: 0.2,
+        brushCanvasSize: 200,
+        brushTimeFactor: 0.1
+      }
+    },
+    red: {
+      count: 5,
+      settings: {
+        brushColor: () => color(random(340, 390) % 360, random(90, 98), random(80, 100)),
+        brushAlpha: 0.8,
+        brushNoiseScale: () => random(10, 50),
+        brushColorVariant: 0.8,
+        aspectRatio: 0.25,
+        brushCanvasSize: 300,
+        brushTimeFactor: 0.1
+      }
+    },
+    yellow: {
+      count: 5,
+      settings: {
+        brushColor: () => color(random(35, 50), random(90, 98), random(80, 95)),
+        brushAlpha: 1,
+        brushNoiseScale: 20,
+        brushColorVariant: 0.3,
+        aspectRatio: 0.2,
+        brushCanvasSize: 300,
+        brushTimeFactor: 0.1
+      }
+    }
+  };
 
-	// 生成白色畫刷
-	useBrushesWhite = Array.from({ length: 5 }).map(() => generateBrushHead({
-		brushColor: color(random(0, 10), random(0, 20), random(90, 100)),
-		brushAlpha: 1,
-		brushNoiseScale: random(10, 500),
-		brushColorVariant: 0.5,
-		aspectRatio: 0.3,
-		brushCanvasSize: 200,
-		brushTimeFactor: 0.1,
-	}));
+  // 生成基本畫刷
+  const generateBrushSet = (config) => {
+    return Array.from({ length: config.count }).map(() => {
+      const settings = { ...config.settings };
+      if(typeof settings.brushColor === 'function') {
+        settings.brushColor = settings.brushColor();
+      }
+      if(typeof settings.brushNoiseScale === 'function') {
+        settings.brushNoiseScale = settings.brushNoiseScale();
+      }
+      return generateBrushHead(settings);
+    });
+  };
 
-	// 生成黑色畫刷
-	useBrushesBlack = Array.from({ length: 5 }).map(() => generateBrushHead({
-		brushColor: color(random(0, 10), random(0, 20), random(0, 30)),
-		brushAlpha: 0.8,
-		brushNoiseScale: random(10, 500),
-		brushColorVariant: 0.8,
-		aspectRatio: 0.2,
-		brushCanvasSize: 200,
-		brushTimeFactor: 0.1,
-	}));
+  // 生成所有基本畫刷
+  useBrushesGreen = generateBrushSet(brushConfigs.green);
+  useBrushesWhite = generateBrushSet(brushConfigs.white);
+  useBrushesBlack = generateBrushSet(brushConfigs.black);
+  useBrushesRed = generateBrushSet(brushConfigs.red);
+  flowerCenterYellowBrushes = generateBrushSet(brushConfigs.yellow);
 
-	// 生成紅色畫刷
-	useBrushesRed = Array.from({ length: 5 }).map(() => generateBrushHead({
-		brushColor: color(random(340, 390) % 360, random(90, 98), random(80, 100)),
-		brushAlpha: 0.8,
-		brushNoiseScale: random(10, 50),
-		brushColorVariant: 0.8,
-		aspectRatio: 0.25,
-		brushCanvasSize: 300,
-		brushTimeFactor: 0.1,
-	}));
+  // 生成混合畫刷
+  const generateMixedBrushes = (brush1, brush2, count = 5) => {
+    return Array.from({ length: count }).map(() => 
+      mergeBrushHeads(random(brush1), random(brush2))
+    );
+  };
 
-	// 生成花心的黃色畫刷
-	flowerCenterYellowBrushes = Array.from({ length: 5 }).map(() => generateBrushHead({
-		brushColor: color(random(35, 50), random(90, 98), random(80, 95)),
-		brushAlpha: 1,
-		brushNoiseScale: 20,
-		brushColorVariant: 0.3,
-		aspectRatio: 0.2,
-		brushCanvasSize: 300,
-		brushTimeFactor: 0.1,
-	}));
+  redWhiteBrushes = generateMixedBrushes(useBrushesRed, useBrushesWhite);
+  redBlackBrushes = generateMixedBrushes(useBrushesRed, useBrushesBlack);
+  plantBrushes = generateMixedBrushes(useBrushesGreen, useBrushesGreen);
 
-	// 生成紅白混合畫刷
-	redWhiteBrushes = Array.from({ length: 5 }).map(() => mergeBrushHeads(random(useBrushesRed), random(useBrushesWhite)));
-
-	// 生成紅黑混合畫刷
-	redBlackBrushes = Array.from({ length: 5 }).map(() => mergeBrushHeads(random(useBrushesRed), random(useBrushesBlack)));
-
-	// 生成植物畫刷
-	plantBrushes = Array.from({ length: 5 }).map(() => mergeBrushHeads(random(useBrushesGreen), random(useBrushesGreen)));
-
-	// 生成花朵植物
-	for (let i = 0; i < 10; i++) {
-		generateFlowerPlant(createVector(random(-100, 100), random(-20, 20) + 300, random(-100, 100)));
-	}
+  // 生成開始
+  const flowerCount = 10;
+  Array.from({ length: flowerCount }).forEach(() => {
+    generateFlowerPlant(createVector(
+      random(-100, 100),
+      random(-20, 20) + 300,
+      random(-100, 100)
+    ));
+  });
 }
 
 // 在平面內旋轉向量
