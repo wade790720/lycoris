@@ -21,6 +21,7 @@ let debug = false;
 let layerSystem, brushSystem
 
 let controls;
+let debugManager;
 
 function preload() {
   overAllTexture = loadImage("assets/canvas-light-6k.jpg");
@@ -30,122 +31,137 @@ function setup() {
   pixelDensity(3);
   cnv = createCanvas(1000, 1000);
 
+  // 初始化 DebugManager
+  debugManager = new DebugManager();
+  
+  // 初始化其他系統
+  initializeSystems();
+  initializeScene();
+}
+
+function initializeSystems() {
   mainGraphics = createGraphics(width, height);
-
   controls = new Controls();
-  brushSystem = new BrushSystem()
-  layerSystem = new LayerSystem(10, false)
+  brushSystem = new BrushSystem();
+  layerSystem = new LayerSystem(10, false);
+}
 
-  cameraPosition = createVector(0, 0, -200); // Default camera position
-  targetPosition = createVector(0, 0, 0); // Default target position
+function initializeScene() {
+  cameraPosition = createVector(0, 0, -200);
+  targetPosition = createVector(0, 0, 0);
   generateFlowers();
 
-  mainGraphics.background("#111");
-  background(10);
-  mouseX = width / 2;
-  mouseY = height / 2;
-
-  // Map mouseX and mouseY to angles
-  angleY = map(mouseX, 0, width, -PI, PI);
-  angleX = map(mouseY, 0, height, -PI, PI);
-  angleZ = angleY * 0.5; // Optionally add some Z rotation
-
-
+  // 初始化角度
+  const center = { x: width / 2, y: height / 2 };
+  angleY = map(center.x, 0, width, -PI, PI);
+  angleX = map(center.y, 0, height, -PI, PI);
+  angleZ = angleY * 0.5;
 }
 
 function draw() {
-  if (debug) {
-    layerSystem.clearAllLayer()
-    mainGraphics.clear();
-  }
-
+  // 1. 前置處理清除
+  debugManager.preRender(layerSystem, mainGraphics);
+  
+  // 2. 主要渲染準備
   mainGraphics.push();
-  mainGraphics.translate(width / 2, height / 2); // Translate origin to the center of the canvas
+  mainGraphics.translate(width / 2, height / 2);
+  
+  // 3. 更新場景狀態
+  updateSceneState();
+  
+  // 4. 渲染粒子
+  renderParticles();
+  
+  // 5. 後處理效果
+  applyPostProcessing();
+  
+  // 6. Debug 資訊
+  debugManager.drawDebugInfo({
+    angles: { angleX, angleY, angleZ },
+    camera: { position: cameraPosition, fov, zoom },
+    particleCount: particles.length
+  });
+}
 
+function updateSceneState() {
+  const sceneState = {
+    angles: { angleX, angleY, angleZ },
+    autoControl
+  };
+  
+  const updatedState = debugManager.updateSceneState(sceneState);
+  angleX = updatedState.angles.angleX;
+  angleY = updatedState.angles.angleY;
+  angleZ = updatedState.angles.angleZ;
+}
 
-  if (debug && autoControl) {
-    angleX = PI / 4
-    angleY = frameCount / 100;
-    angleZ = sin(angleY) / 5
-  } else {
-
-    angleX = PI / 8
-  }
-
-
-  if (debug) {
-    Graphics3D.drawAxes();
-  }
-
+function renderParticles() {
   mainGraphics.stroke(0);
   mainGraphics.fill(0);
 
+  particles = debugManager.processParticles(particles);
+  
   for (let particle of particles) {
-    if (debug) {
-      particle.renderType = "history";
-    }
     particle.update();
     particle.draw({
-      angleX,
-      angleY,
-      angleZ,
+      angleX, angleY, angleZ,
       camera: cameraPosition,
-      fov,
-      zoom
+      fov, zoom
     });
   }
+  
+  particles = sortParticles(particles);
+  mainGraphics.pop();
+}
 
-  // Remove dead particles
-  if (!debug) {
+function sortParticles(particles) {
+  if (!debugManager.isEnabled) {
     particles = particles.filter(particle => particle.isAlive);
   }
-
-  // Sort particles by distance to the camera
-  particles = particles.sort((p1, p2) => {
-    // Calculate the squared distance from the camera for each particle
+  
+  return particles.sort((p1, p2) => {
     let dist1 = p5.Vector.sub(p1.p, cameraPosition).magSq();
     let dist2 = p5.Vector.sub(p2.p, cameraPosition).magSq();
-
-    // Sort in descending order (farthest first) for proper rendering order
     return dist2 - dist1;
   });
+}
 
-  mainGraphics.pop();
-
-  push()
-
-  drawingContext.globalAlpha = 1;
-  background(0)
-  mainGraphics.clear()
-  mainGraphics.blendMode(BLEND)
-  layerSystem.update()
-  layerSystem.draw(mainGraphics)
-  image(mainGraphics, 0, 0);
-  pop()
-
+function applyPostProcessing() {
+  // 主要渲染
   push();
+  drawingContext.globalAlpha = 1;
+  background(0);
+  mainGraphics.clear();
+  mainGraphics.blendMode(BLEND);
+  layerSystem.update();
+  layerSystem.draw(mainGraphics);
+  image(mainGraphics, 0, 0);
+  pop();
+
+  // 後處理效果
+  push();
+  applyBlendEffects();
+  applyTextureOverlay();
+  pop();
+}
+
+function applyBlendEffects() {
   rectMode(CORNER);
   blendMode(SCREEN);
-  drawingContext.filter = "blur(2px)"
+  drawingContext.filter = "blur(2px)";
   drawingContext.globalAlpha = 0.25;
   image(mainGraphics, 0, 0);
+  
   drawingContext.globalAlpha = 0.25;
   blendMode(BURN);
   image(mainGraphics, 0, 0);
+}
 
-  drawingContext.filter = ""
+function applyTextureOverlay() {
+  drawingContext.filter = "";
   drawingContext.globalAlpha = 0.6;
   blendMode(MULTIPLY);
   image(overAllTexture, 0, 0, height / 1080 * 1920, height);
-  pop();
-
-  if (debug) {
-    noStroke()
-    Graphics3D.drawCrosshair(mouseX, mouseY);
-    fill(255);
-    text([angleX, angleY, angleZ, cameraPosition, fov, zoom, "Count:" + particles.length, "Time: " + frameCount].join("\n"), 0, 10);
-  }
-
 }
 
 // 滑鼠滾輪控制縮放
