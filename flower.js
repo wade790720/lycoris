@@ -104,12 +104,17 @@ function generateFlowers() {
 
   // 生成開始
   const flowerCount = 10;
-  Array.from({ length: flowerCount }).forEach(() => {
-    generateFlowerPlant(createVector(
-      random(-100, 100),
-      random(-20, 20) + 300,
-      random(-100, 100)
-    ));
+  const delayPerPlant = 30; // 每株植物之間的延遲幀數
+  
+  Array.from({ length: flowerCount }).forEach((_, i) => {
+    generateFlowerPlant(
+      createVector(
+        random(-100, 100),
+        random(-20, 20) + 300,
+        random(-100, 100)
+      ),
+      i * delayPerPlant // 加入延遲參數
+    );
   });
 }
 
@@ -124,7 +129,7 @@ function rotateVectorInPlane(v1, v2, v4, ang) {
 }
 
 // 生成花朵植物
-function generateFlowerPlant(pos) {
+function generateFlowerPlant(pos, delay = 0) {
   colorMode(HSB);
   let plantGrowthDirection = Rotation3D.rotateRandom(createVector(0, -random(0.9, 1) - 1, 0), random(PI / 2));
   let plantDrawingLayer = layerSystem.getRandomLayer(0);
@@ -137,7 +142,7 @@ function generateFlowerPlant(pos) {
     acceleration: createVector(0, -0.01, 0),
     radius: random(15, 25),
     color: color(100, 100, 100),
-    preDelay: 0,
+    preDelay: delay,
     renderJitter: 5,
     lifespan: random(40, 250),
     mainGraphics: plantDrawingLayer.graphics,
