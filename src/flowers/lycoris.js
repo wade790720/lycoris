@@ -129,7 +129,7 @@ function generateFlowerPlant(pos) {
 	let plantGrowthDirection = Rotation3D.rotateRandom(createVector(0, -random(0.9, 1) - 1, 0), random(PI / 2));
 	let plantDrawingLayer = layerSystem.getRandomLayer(0);
 
-	particles.push(new Particle({
+	sceneManager.addParticle(new Particle({
 		p: pos.copy(),
 		vector: plantGrowthDirection,
 		velocityShrinkFactor: 0.995,
@@ -181,7 +181,7 @@ function generateFlower(_this) {
 		let _r = flowerRadius * flowerScale;
 		let pos = _this.p.copy();
 
-		particles.push(new Particle({
+		sceneManager.addParticle(new Particle({
 			p: pos,
 			radius: _r,
 			vector: vc_final.copy().normalize().mult(1.2),
@@ -221,7 +221,7 @@ function generateFlower(_this) {
 		let _r = flowerRadius * flowerScale;
 		let pos = _this.p.copy();
 
-		particles.push(new Particle({
+		sceneManager.addParticle(new Particle({
 			p: pos,
 			radius: _r,
 			vector: vc_final.copy().normalize().mult(-random(2, 3)),
@@ -250,7 +250,7 @@ function generateFlower(_this) {
 // 生成花朵結尾效果
 function generateFlowerEnd(_this) {
 	let _r = random(4, 8);
-	particles.push(new Particle({
+	sceneManager.addParticle(new Particle({
 		p: _this.p.copy(),
 		radius: _r,
 		vector: Rotation3D.rotateRandom(_this.vector.copy().normalize().mult(random(0.8, 1)), random(-1, 1) * PI),
