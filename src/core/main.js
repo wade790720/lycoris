@@ -6,7 +6,7 @@ let controls;
 let debugManager;
 let sceneManager;
 let appConfig;
-let flowerStyle = 'gothic'; // 'original', 'gothic', 'dreamy'
+let flowerStyle = 'gothic'; // 'original', 'gothic'
 
 function preload() {
   overAllTexture = loadImage("assets/canvas-background.jpg");
@@ -47,9 +47,6 @@ function generateFlowersByStyle(style) {
   switch(style) {
     case 'gothic':
       generateGothicFlowers();
-      break;
-    case 'dreamy':
-      generateDreamyFlowers();
       break;
     case 'original':
     default:
@@ -120,9 +117,6 @@ function keyPressed() {
   } else if (key === '2') {
     switchFlowerStyle('gothic');
     console.log('切換到哥特風格');
-  } else if (key === '3') {
-    switchFlowerStyle('dreamy');
-    console.log('切換到夢幻風格');
   } else {
     controls.handleKeyPressed({ fov: cameraConfig.fov });
   }
