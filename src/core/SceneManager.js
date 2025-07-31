@@ -104,6 +104,10 @@ class SceneManager {
     this.particles.push(particle);
   }
 
+  clearScene() {
+    this.particles = [];
+  }
+
   getParticleCount() {
     return this.particles.length;
   }

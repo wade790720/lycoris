@@ -6,6 +6,7 @@ let controls;
 let debugManager;
 let sceneManager;
 let appConfig;
+let flowerStyle = 'gothic'; // 'original', 'gothic', 'dreamy'
 
 function preload() {
   overAllTexture = loadImage("assets/canvas-background.jpg");
@@ -39,7 +40,28 @@ function initializeSystems() {
 
 function initializeScene() {
   sceneManager.initialize();
-  generateFlowers();
+  generateFlowersByStyle(flowerStyle);
+}
+
+function generateFlowersByStyle(style) {
+  switch(style) {
+    case 'gothic':
+      generateGothicFlowers();
+      break;
+    case 'dreamy':
+      generateDreamyFlowers();
+      break;
+    case 'original':
+    default:
+      generateFlowers();
+      break;
+  }
+}
+
+function switchFlowerStyle(newStyle) {
+  flowerStyle = newStyle;
+  sceneManager.clearScene();
+  generateFlowersByStyle(flowerStyle);
 }
 
 function draw() {
@@ -48,7 +70,7 @@ function draw() {
   debugManager.preRender(layerSystem, mainGraphics);
 
   mainGraphics.push();
-  mainGraphics.translate(width / 2, height / 2);
+  mainGraphics.translate(width, height);
 
   sceneManager.updateSceneState(debugManager);
   sceneManager.renderParticles(mainGraphics, debugManager, cameraConfig.fov, cameraConfig.zoom);
@@ -90,5 +112,18 @@ function mouseReleased() {
 
 function keyPressed() {
   const cameraConfig = appConfig.getCameraConfig();
-  controls.handleKeyPressed({ fov: cameraConfig.fov });
+  
+  // 風格切換鍵位
+  if (key === '1') {
+    switchFlowerStyle('original');
+    console.log('切換到原始風格');
+  } else if (key === '2') {
+    switchFlowerStyle('gothic');
+    console.log('切換到哥特風格');
+  } else if (key === '3') {
+    switchFlowerStyle('dreamy');
+    console.log('切換到夢幻風格');
+  } else {
+    controls.handleKeyPressed({ fov: cameraConfig.fov });
+  }
 }

@@ -1,20 +1,19 @@
-// 花朵繪製相關的畫刷管理器
-class FlowerBrushManager {
+// 哥特風格花朵繪製相關的畫刷管理器
+class GothicFlowerBrushManager {
   constructor() {
     this.brushes = {};
     this.mixedBrushes = {};
     this._initializeBrushConfigs();
   }
 
-  // 初始化畫刷配置 - 集中管理所有畫刷的顏色和屬性設定
+  // 初始化哥特風格畫刷配置 - 深紫莖、深紅黑花瓣、暗金花蕊、深橙花心
   _initializeBrushConfigs() {
     this.brushConfigs = {
       green: {
         count: 10,
         settings: {
-          brushColor: () => color(random(60, 115) + random() * random() * 10,
-            random(80, 85) + random() * random() * 10,
-            random(10, 60) + random() * random() * 20),
+          // 深紫色莖部
+          brushColor: () => color(random(280, 300), random(60, 80), random(25, 45)),
           brushAlpha: 1,
           brushNoiseScale: () => random(10, 300),
           brushColorVariant: 0.6,
@@ -25,8 +24,9 @@ class FlowerBrushManager {
       white: {
         count: 5,
         settings: {
-          brushColor: () => color(random(0, 10), random(0, 20), random(90, 100)),
-          brushAlpha: 1,
+          // 暗金色花蕊
+          brushColor: () => color(random(40, 50), random(70, 85), random(40, 60)),
+          brushAlpha: 0.8,
           brushNoiseScale: () => random(10, 500),
           brushColorVariant: 0.5,
           aspectRatio: 0.3,
@@ -37,8 +37,9 @@ class FlowerBrushManager {
       black: {
         count: 5,
         settings: {
-          brushColor: () => color(random(0, 10), random(0, 20), random(0, 30)),
-          brushAlpha: 0.8,
+          // 深紅近黑花瓣 (用於混合)
+          brushColor: () => color(random(350, 10), random(80, 95), random(10, 25)),
+          brushAlpha: 0.9,
           brushNoiseScale: () => random(10, 500),
           brushColorVariant: 0.8,
           aspectRatio: 0.2,
@@ -49,8 +50,9 @@ class FlowerBrushManager {
       red: {
         count: 5,
         settings: {
-          brushColor: () => color(random(340, 390) % 360, random(90, 98), random(80, 100)),
-          brushAlpha: 0.8,
+          // 深紅近黑花瓣
+          brushColor: () => color(random(350, 10), random(80, 95), random(15, 35)),
+          brushAlpha: 0.9,
           brushNoiseScale: () => random(10, 50),
           brushColorVariant: 0.8,
           aspectRatio: 0.25,
@@ -61,10 +63,11 @@ class FlowerBrushManager {
       yellow: {
         count: 5,
         settings: {
-          brushColor: () => color(random(35, 50), random(90, 98), random(80, 95)),
+          // 深橙色花心
+          brushColor: () => color(random(20, 35), random(85, 95), random(50, 70)),
           brushAlpha: 1,
           brushNoiseScale: 20,
-          brushColorVariant: 0.3,
+          brushColorVariant: 0.4,
           aspectRatio: 0.2,
           brushCanvasSize: 300,
           brushTimeFactor: 0.1
@@ -125,20 +128,20 @@ class FlowerBrushManager {
   }
 }
 
-// 全域畫刷管理器實例
-const brushManager = new FlowerBrushManager();
+// 全域哥特風格畫刷管理器實例
+const gothicBrushManager = new GothicFlowerBrushManager();
 
-// 主要花朵生成函數 - 負責初始化和啟動整個花朵生成流程
-function generateFlowers() {
+// 哥特風格花朵生成函數 - 使用原本的結構，只替換畫刷管理器
+function generateGothicFlowers() {
   colorMode(HSB);
 
-  // 初始化所有畫刷
-  brushManager.initializeAllBrushes();
+  // 初始化哥特風格畫刷
+  gothicBrushManager.initializeAllBrushes();
 
   // 生成多朵花
   const flowerCount = 10;
   Array.from({ length: flowerCount }).forEach(() => {
-    generateFlowerPlant(createVector(
+    generateGothicFlowerPlant(createVector(
       random(-100, 100),
       random(-20, 20) + 300,
       random(-100, 100)
@@ -146,24 +149,8 @@ function generateFlowers() {
   });
 }
 
-// 3D向量數學工具函數 - 處理複雜的向量旋轉運算
-function rotateVectorInPlane(v1, v2, v4, ang) {
-  // 計算兩個向量定義的平面的法向量
-  let normal = v1.cross(v2).normalize();
-
-  // 將目標向量投影到該平面上
-  let projection = v4.copy().sub(normal.copy().mult(v4.dot(normal)));
-
-  // 使用羅德里格旋轉公式進行平面內旋轉
-  let cosAng = cos(ang);
-  let sinAng = sin(ang);
-  let rotatedV4 = projection.copy().mult(cosAng).add(normal.cross(projection).mult(sinAng));
-
-  return rotatedV4;
-}
-
-// 花莖生成器 - 專門負責生成花朵植物的莖部
-class FlowerStemGenerator {
+// 哥特風格花莖生成器 - 使用原本的邏輯，替換畫刷
+class GothicFlowerStemGenerator {
   // 創建花莖粒子的基本屬性配置
   static createStemParticleConfig(pos, plantGrowthDirection, plantDrawingLayer) {
     return {
@@ -179,13 +166,13 @@ class FlowerStemGenerator {
       lifespan: random(40, 250),
       mainGraphics: plantDrawingLayer.graphics,
       maxSegments: 10,
-      brush: random(brushManager.getMixedBrush('plant')),
-      brush2: random(brushManager.getMixedBrush('plant')),
+      brush: random(gothicBrushManager.getMixedBrush('plant')),
+      brush2: random(gothicBrushManager.getMixedBrush('plant')),
       renderType: "brushImageLerp",
       speedLimit: 5,
       isBrushRotateFollowVelocity: true,
       endCallback: (_this) => {
-        flowerGenerator.generateFlower(_this);
+        gothicFlowerGenerator.generateFlower(_this);
       },
       tick: (_this) => {
         // 添加自然的搖擺動態效果 - 模擬風吹的感覺
@@ -213,12 +200,12 @@ class FlowerStemGenerator {
 }
 
 // 生成花朵植物 - 簡化後只負責調用花莖生成器
-function generateFlowerPlant(pos) {
-  FlowerStemGenerator.generateStem(pos);
+function generateGothicFlowerPlant(pos) {
+  GothicFlowerStemGenerator.generateStem(pos);
 }
 
-// 花朵生成器 - 專門負責花瓣和花蕊的生成邏輯
-class FlowerGenerator {
+// 哥特風格花朵生成器 - 使用原本的邏輯，替換畫刷
+class GothicFlowerGenerator {
   // 生成花朵的主要函數
   generateFlower(stemParticle) {
     console.log(stemParticle);
@@ -304,7 +291,7 @@ class FlowerGenerator {
   // 創建花瓣粒子配置
   _createPetalParticleConfig(stemParticle, flowerParams, vc_final, vectorMultiplier, shrinkFactor) {
     const _r = flowerParams.flowerRadius * flowerParams.flowerScale;
-    const brushes = brushManager.getRandomPetalBrushes();
+    const brushes = gothicBrushManager.getRandomPetalBrushes();
 
     return {
       p: stemParticle.p.copy(),
@@ -332,7 +319,7 @@ class FlowerGenerator {
   // 創建花蕊粒子配置
   _createStamenParticleConfig(stemParticle, flowerParams, vc_final, stamenRadius) {
     const _r = stamenRadius * flowerParams.flowerScale;
-    const brushes = brushManager.getRandomPetalBrushes();
+    const brushes = gothicBrushManager.getRandomPetalBrushes();
 
     return {
       p: stemParticle.p.copy(),
@@ -354,7 +341,7 @@ class FlowerGenerator {
         _this.vector = rotateVectorInPlane(flowerParams.flowerCenterV, vc_final, _this.vector, amp);
       },
       endCallback: (_this) => {
-        flowerEndGenerator.generateFlowerEnd(_this);
+        gothicFlowerEndGenerator.generateFlowerEnd(_this);
       }
     };
   }
@@ -371,13 +358,13 @@ class FlowerGenerator {
 }
 
 // 全域花朵生成器實例
-const flowerGenerator = new FlowerGenerator();
+const gothicFlowerGenerator = new GothicFlowerGenerator();
 
-// 花朵結尾效果生成器 - 負責花蕊末端的黃色花粉效果
-class FlowerEndGenerator {
+// 花朵結尾效果生成器 - 負責花蕊末端的深橙色花粉效果
+class GothicFlowerEndGenerator {
   generateFlowerEnd(stamenParticle) {
     const pollenRadius = random(4, 8);
-    const yellowBrushes = brushManager.getBrush('yellow');
+    const orangeBrushes = gothicBrushManager.getBrush('yellow');
 
     const pollenConfig = {
       p: stamenParticle.p.copy(),
@@ -392,8 +379,8 @@ class FlowerEndGenerator {
       preDelay: 0,
       mainGraphics: stamenParticle.mainGraphics,
       color: color(50, 100, 100),
-      brush: random(yellowBrushes),
-      brush2: random(yellowBrushes),
+      brush: random(orangeBrushes),
+      brush2: random(orangeBrushes),
       brushLerpMap: k => k,
       maxSegments: 5,
       renderType: "brushImageLerp",
@@ -409,4 +396,4 @@ class FlowerEndGenerator {
 }
 
 // 全域花朵結尾效果生成器實例
-const flowerEndGenerator = new FlowerEndGenerator();
+const gothicFlowerEndGenerator = new GothicFlowerEndGenerator();
