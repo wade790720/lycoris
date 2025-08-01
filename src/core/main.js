@@ -145,19 +145,35 @@ function mouseReleased() {
 function keyPressed() {
   const cameraConfig = appConfig.getCameraConfig();
   
-  // 花朵風格切換鍵位（1-4 數字鍵）
+  // 🎨 世界級美學配色切換鍵位（1-8 數字鍵）
   if (key === '1') {
-    switchFlowerStyle('original');
-    console.log('切換到原始風格');
+    sceneManager.clearScene();
+    generateProvenceLavender();
+    console.log('🌿 普羅旺斯薰衣草田 - 法國印象派風情');
   } else if (key === '2') {
-    switchFlowerStyle('gothic');
-    console.log('切換到哥特風格');
+    sceneManager.clearScene();
+    generateNordicLavender();
+    console.log('🌙 北歐極光薰衣草園 - 冰島夢境');
   } else if (key === '3') {
-    switchFlowerStyle('ink');
-    console.log('切換到水墨風格 🖋️');
+    sceneManager.clearScene();
+    generateJapaneseLavender();
+    console.log('🌸 日式禪園薰衣草 - 東方美學');
   } else if (key === '4') {
+    sceneManager.clearScene();
+    generateOceanicLavender();
+    console.log('🌊 海洋藝術薰衣草 - Turner風景');
+  } else if (key === '5') {
     switchFlowerStyle('twilight');
-    console.log('切換到暮光藍紫風格 🌙');
+    console.log('🌆 暮光藍紫風格');
+  } else if (key === '6') {
+    switchFlowerStyle('gothic');
+    console.log('🖤 哥特暗黑風格');
+  } else if (key === '7') {
+    switchFlowerStyle('ink');
+    console.log('🖋️ 中國水墨風格');
+  } else if (key === '8') {
+    switchFlowerStyle('original');
+    console.log('🌺 經典彼岸花風格');
   } else {
     // 其他鍵位交由控制系統處理
     controls.handleKeyPressed({ fov: cameraConfig.fov });

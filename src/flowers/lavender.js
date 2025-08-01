@@ -24,7 +24,7 @@
 - generateInkFlowers() // 中國水墨風格
 */
 
-// 紫丁香風格配置 - 基於 Lilas 的紫白優雅色調
+// 🎨 世界級美學配色系統 - 融合國際頂級藝術作品的配色理論
 const FLOWER_STYLES = {
   default: {
     green: {
@@ -163,6 +163,212 @@ const FLOWER_STYLES = {
       }
     }
   },
+  
+  // 🎨 世界級美學配色新增風格
+  
+  // 🌿 普羅旺斯印象派風格 - 莫內《睡蓮》色彩感受
+  provence: {
+    green: {
+      count: 8,
+      settings: {
+        brushColor: () => color(random(135, 155), random(60, 75), random(25, 40)),
+        brushAlpha: 1,
+        brushNoiseScale: () => random(35, 160),
+        brushColorVariant: 0.35,
+        brushCanvasSize: 165,
+        aspectRatio: 0.12
+      }
+    },
+    purple: {
+      count: 18,
+      settings: {
+        brushColor: () => color(random(270, 285), random(55, 75), random(45, 70)),
+        brushAlpha: 0.8,
+        brushNoiseScale: () => random(15, 80),
+        brushColorVariant: 0.4,
+        aspectRatio: 0.5,
+        brushCanvasSize: 125,
+        brushTimeFactor: 0.08
+      }
+    },
+    shadow: {
+      count: 10,
+      settings: {
+        brushColor: () => color(random(250, 270), random(80, 95), random(12, 28)),
+        brushAlpha: 0.65,
+        brushNoiseScale: () => random(40, 200),
+        brushColorVariant: 0.5,
+        aspectRatio: 0.25,
+        brushCanvasSize: 145,
+        brushTimeFactor: 0.1
+      }
+    },
+    white: {
+      count: 8,
+      settings: {
+        brushColor: () => color(random(0, 20), random(0, 15), random(88, 100)),
+        brushAlpha: 0.45,
+        brushNoiseScale: () => random(60, 300),
+        brushColorVariant: 0.2,
+        aspectRatio: 0.85,
+        brushCanvasSize: 70,
+        brushTimeFactor: 0.06
+      }
+    }
+  },
+  
+  // 🌙 北歐極光風格 - 冰島薰衣草夢境
+  nordic: {
+    green: {
+      count: 6,
+      settings: {
+        brushColor: () => color(random(180, 200), random(40, 60), random(30, 45)),
+        brushAlpha: 0.9,
+        brushNoiseScale: () => random(25, 120),
+        brushColorVariant: 0.3,
+        brushCanvasSize: 150,
+        aspectRatio: 0.15
+      }
+    },
+    purple: {
+      count: 22,
+      settings: {
+        brushColor: () => color(random(260, 280), random(70, 85), random(50, 75)),
+        brushAlpha: 0.85,
+        brushNoiseScale: () => random(10, 60),
+        brushColorVariant: 0.3,
+        aspectRatio: 0.45,
+        brushCanvasSize: 115,
+        brushTimeFactor: 0.07
+      }
+    },
+    lightBlue: {
+      count: 12,
+      settings: {
+        brushColor: () => color(random(200, 220), random(45, 65), random(75, 90)),
+        brushAlpha: 0.7,
+        brushNoiseScale: () => random(20, 100),
+        brushColorVariant: 0.25,
+        aspectRatio: 0.6,
+        brushCanvasSize: 100,
+        brushTimeFactor: 0.05
+      }
+    },
+    white: {
+      count: 10,
+      settings: {
+        brushColor: () => color(random(200, 240), random(20, 35), random(85, 100)),
+        brushAlpha: 0.5,
+        brushNoiseScale: () => random(80, 250),
+        brushColorVariant: 0.15,
+        aspectRatio: 0.9,
+        brushCanvasSize: 75,
+        brushTimeFactor: 0.04
+      }
+    }
+  },
+  
+  // 🌸 日式和風美學 - 櫻花與薰衣草的細膩融合
+  japanese: {
+    green: {
+      count: 7,
+      settings: {
+        brushColor: () => color(random(120, 140), random(65, 80), random(20, 35)),
+        brushAlpha: 0.95,
+        brushNoiseScale: () => random(40, 180),
+        brushColorVariant: 0.4,
+        brushCanvasSize: 140,
+        aspectRatio: 0.1
+      }
+    },
+    purple: {
+      count: 15,
+      settings: {
+        brushColor: () => color(random(285, 305), random(50, 70), random(45, 65)),
+        brushAlpha: 0.75,
+        brushNoiseScale: () => random(15, 90),
+        brushColorVariant: 0.35,
+        aspectRatio: 0.4,
+        brushCanvasSize: 105,
+        brushTimeFactor: 0.09
+      }
+    },
+    sakura: {
+      count: 18,
+      settings: {
+        brushColor: () => color(random(320, 340), random(35, 55), random(80, 95)),
+        brushAlpha: 0.6,
+        brushNoiseScale: () => random(25, 120),
+        brushColorVariant: 0.3,
+        aspectRatio: 0.7,
+        brushCanvasSize: 90,
+        brushTimeFactor: 0.06
+      }
+    },
+    gold: {
+      count: 5,
+      settings: {
+        brushColor: () => color(random(45, 60), random(80, 95), random(85, 100)),
+        brushAlpha: 0.4,
+        brushNoiseScale: () => random(100, 400),
+        brushColorVariant: 0.2,
+        aspectRatio: 0.95,
+        brushCanvasSize: 50,
+        brushTimeFactor: 0.03
+      }
+    }
+  },
+  
+  // 🌊 海洋藝術風格 - Turner《風雨汽船》的色彩感受
+  oceanic: {
+    green: {
+      count: 7,
+      settings: {
+        brushColor: () => color(random(160, 180), random(70, 85), random(25, 40)),
+        brushAlpha: 0.9,
+        brushNoiseScale: () => random(35, 160),
+        brushColorVariant: 0.45,
+        brushCanvasSize: 155,
+        aspectRatio: 0.12
+      }
+    },
+    deepBlue: {
+      count: 25,
+      settings: {
+        brushColor: () => color(random(210, 230), random(75, 90), random(35, 60)),
+        brushAlpha: 0.8,
+        brushNoiseScale: () => random(12, 70),
+        brushColorVariant: 0.35,
+        aspectRatio: 0.35,
+        brushCanvasSize: 130,
+        brushTimeFactor: 0.08
+      }
+    },
+    turquoise: {
+      count: 15,
+      settings: {
+        brushColor: () => color(random(170, 190), random(60, 80), random(65, 85)),
+        brushAlpha: 0.7,
+        brushNoiseScale: () => random(20, 110),
+        brushColorVariant: 0.3,
+        aspectRatio: 0.5,
+        brushCanvasSize: 105,
+        brushTimeFactor: 0.06
+      }
+    },
+    foam: {
+      count: 12,
+      settings: {
+        brushColor: () => color(random(180, 200), random(25, 40), random(90, 100)),
+        brushAlpha: 0.55,
+        brushNoiseScale: () => random(60, 300),
+        brushColorVariant: 0.2,
+        aspectRatio: 0.85,
+        brushCanvasSize: 80,
+        brushTimeFactor: 0.04
+      }
+    }
+  }
 };
 
 // 花朵繪製相關的畫刷管理器
@@ -201,18 +407,44 @@ class FlowerBrushManager {
     );
   }
 
-  // 初始化所有畫刷
+  // 初始化所有畫刷 - 支持動態色彩系統
   initializeAllBrushes() {
-    // 生成基本色彩畫刷
-    this.brushes.green = this._generateBrushSet(this.brushConfigs.green);
-    this.brushes.purple = this._generateBrushSet(this.brushConfigs.purple);
-    this.brushes.white = this._generateBrushSet(this.brushConfigs.white);
-    this.brushes.black = this._generateBrushSet(this.brushConfigs.black);
+    // 清空現有畫刷
+    this.brushes = {};
+    this.mixedBrushes = {};
+    
+    // 動態生成所有配置中的色彩組
+    Object.keys(this.brushConfigs).forEach(colorKey => {
+      if (this.brushConfigs[colorKey] && this.brushConfigs[colorKey].count) {
+        this.brushes[colorKey] = this._generateBrushSet(this.brushConfigs[colorKey]);
+      }
+    });
 
-    // 生成混合效果畫刷 - 紫丁香特色層次
-    this.mixedBrushes.purpleBlack = this._generateMixedBrushes(this.brushes.purple, this.brushes.black);
-    this.mixedBrushes.purpleWhite = this._generateMixedBrushes(this.brushes.purple, this.brushes.white); // 紫白混合
-    this.mixedBrushes.plant = this._generateMixedBrushes(this.brushes.green, this.brushes.green);
+    // 生成智能混合效果 - 根據可用色彩自動組合
+    const colorKeys = Object.keys(this.brushes);
+    if (colorKeys.includes('purple') && colorKeys.includes('white')) {
+      this.mixedBrushes.purpleWhite = this._generateMixedBrushes(this.brushes.purple, this.brushes.white);
+    }
+    if (colorKeys.includes('purple') && (colorKeys.includes('black') || colorKeys.includes('shadow'))) {
+      const darkColor = this.brushes.black || this.brushes.shadow;
+      this.mixedBrushes.purpleDark = this._generateMixedBrushes(this.brushes.purple, darkColor);
+    }
+    if (colorKeys.includes('green')) {
+      this.mixedBrushes.plant = this._generateMixedBrushes(this.brushes.green, this.brushes.green);
+    }
+    
+    // 日式風格特殊混合
+    if (colorKeys.includes('sakura') && colorKeys.includes('purple')) {
+      this.mixedBrushes.sakuraPurple = this._generateMixedBrushes(this.brushes.sakura, this.brushes.purple);
+    }
+    if (colorKeys.includes('gold') && colorKeys.includes('white')) {
+      this.mixedBrushes.goldWhite = this._generateMixedBrushes(this.brushes.gold, this.brushes.white);
+    }
+    
+    // 海洋風格特殊混合
+    if (colorKeys.includes('deepBlue') && colorKeys.includes('turquoise')) {
+      this.mixedBrushes.oceanBlend = this._generateMixedBrushes(this.brushes.deepBlue, this.brushes.turquoise);
+    }
   }
 
   // 獲取指定類型的畫刷
@@ -225,14 +457,31 @@ class FlowerBrushManager {
     return this.mixedBrushes[type] || [];
   }
 
-  // 獲取隨機花瓣畫刷組合 - 紫丁香紫白配色
+  // 獲取隨機花瓣畫刷組合 - 智能選擇最佳配色
   getRandomPetalBrushes() {
-    return random([
-      // this.mixedBrushes.purpleBlack,
-      this.mixedBrushes.purpleWhite,
-      this.brushes.purple,              // 純紫色
-      // this.brushes.white                // 純白色
-    ]);
+    const availableOptions = [];
+    
+    // 基本色彩選項
+    if (this.brushes.purple) availableOptions.push(this.brushes.purple);
+    if (this.brushes.white) availableOptions.push(this.brushes.white);
+    if (this.brushes.sakura) availableOptions.push(this.brushes.sakura);
+    if (this.brushes.lightBlue) availableOptions.push(this.brushes.lightBlue);
+    if (this.brushes.turquoise) availableOptions.push(this.brushes.turquoise);
+    if (this.brushes.celadon) availableOptions.push(this.brushes.celadon);
+    if (this.brushes.deepBlue) availableOptions.push(this.brushes.deepBlue);
+    
+    // 混合色彩選項
+    if (this.mixedBrushes.purpleWhite) availableOptions.push(this.mixedBrushes.purpleWhite);
+    if (this.mixedBrushes.sakuraPurple) availableOptions.push(this.mixedBrushes.sakuraPurple);
+    if (this.mixedBrushes.oceanBlend) availableOptions.push(this.mixedBrushes.oceanBlend);
+    if (this.mixedBrushes.goldWhite) availableOptions.push(this.mixedBrushes.goldWhite);
+    
+    // 如果沒有找到合適的選項，回退到基本配色
+    if (availableOptions.length === 0) {
+      return this.brushes.purple || this.brushes.white || [];
+    }
+    
+    return random(availableOptions);
   }
 }
 // 全域畫刷管理器實例
@@ -243,7 +492,7 @@ let brushManager = new FlowerBrushManager();
 function generateFlowers(options = {}) {
   const {
     style = 'default',           // 選擇風格：default(經典彼岸花)、gothic(哥德風)、ink(水墨風)
-    flowerCount = 20,            // 要生成幾朵花
+    flowerCount = 5,            // 要生成幾朵花
     position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, 
     customStyle = null,           // 自定義風格配置
     clusterMode = true           // 叢生模式
@@ -577,7 +826,55 @@ class FlowerGenerator {
 // 全域花朵生成器實例
 const flowerGenerator = new FlowerGenerator();
 
-// 【便利函數】快速生成不同風格的花朵 - 增強版世界級構圖
+// 🎨 世界級美學配色系列函數
+
+// 普羅旺斯薰衣草田 - 法國印象派風情
+const generateProvenceLavender = (options = {}) => {
+  const defaultOptions = {
+    flowerCount: 5,
+    clusterMode: true,
+    style: 'provence',
+    position: { x: [-250, 250], y: [-40, 30], z: [-250, 250] }
+  };
+  generateFlowers({ ...defaultOptions, ...options });
+};
+
+// 北歐極光薰衣草園 - 冰島風情
+const generateNordicLavender = (options = {}) => {
+  const defaultOptions = {
+    flowerCount: 5,
+    clusterMode: true,
+    style: 'nordic',
+    position: { x: [-200, 200], y: [-30, 40], z: [-200, 200] }
+  };
+  generateFlowers({ ...defaultOptions, ...options });
+};
+
+// 日式禪園薰衣草 - 細膩的東方美學
+const generateJapaneseLavender = (options = {}) => {
+  const defaultOptions = {
+    flowerCount: 5,
+    clusterMode: false, // 日式風格傾向精致排列
+    style: 'japanese',
+    position: { x: [-180, 180], y: [-25, 35], z: [-180, 180] }
+  };
+  generateFlowers({ ...defaultOptions, ...options });
+};
+
+// 海洋藝術風格 - Turner風景薰衣草
+const generateOceanicLavender = (options = {}) => {
+  const defaultOptions = {
+    flowerCount: 5,
+    clusterMode: true,
+    style: 'oceanic',
+    position: { x: [-220, 220], y: [-35, 25], z: [-220, 220] }
+  };
+  generateFlowers({ ...defaultOptions, ...options });
+};
+
+
+
+// 【經典函數】保留原有風格支持
 const generateLycorisFlowers = (options = {}) => generateFlowers({ ...options, style: 'default' }); // 經典彼岸花
 const generateGothicFlowers = (options = {}) => generateFlowers({ ...options, style: 'gothic' });   // 哥德暗黑風
 const generateInkFlowers = (options = {}) => generateFlowers({ ...options, style: 'ink' });         // 中國水墨風
@@ -589,6 +886,11 @@ if (typeof module !== 'undefined' && module.exports) {
     generateLycorisFlowers,
     generateGothicFlowers,
     generateInkFlowers,
+    // 🎨 世界級美學配色系列
+    generateProvenceLavender,
+    generateNordicLavender,
+    generateJapaneseLavender,
+    generateOceanicLavender,
     FlowerBrushManager,
     FLOWER_STYLES,
   };
