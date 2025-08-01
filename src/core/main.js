@@ -1,28 +1,41 @@
-let overAllTexture;
-let cnv;
-let mainGraphics;
-let layerSystem, brushSystem;
-let controls;
-let debugManager;
-let sceneManager;
-let appConfig;
-let flowerStyle = 'ink'; // 'original', 'gothic', 'ink'
+// 全域變數定義
+let overAllTexture;    // 背景紋理
+let cnv;               // 主畫布
+let mainGraphics;      // 主要縪圖層
+let layerSystem, brushSystem;  // 層級系統和筆刷系統
+let controls;          // 互動控制
+let debugManager;      // 除錯管理器
+let sceneManager;      // 場景管理器
+let appConfig;         // 應用程式配置
+let flowerStyle = 'ink'; // 花朵風格：'original', 'gothic', 'ink'
 
+/**
+ * p5.js 預載函數
+ * 在程式開始前載入必要的資源
+ */
 function preload() {
   overAllTexture = loadImage("assets/canvas-background.jpg");
 }
 
+/**
+ * p5.js 初始化函數
+ * 設定畫布、初始化系統和場景
+ */
 function setup() {
   appConfig = new AppConfig();
   
   const canvasConfig = appConfig.getCanvasConfig();
 
+  // 設定高像素密度和畫布大小
   pixelDensity(canvasConfig.pixelDensity);
   cnv = createCanvas(canvasConfig.width, canvasConfig.height);
 
   initializeApplication();
 }
 
+/**
+ * 初始化應用程式的核心系統
+ */
 function initializeApplication() {
   debugManager = new DebugManager();
   sceneManager = new SceneManager();
@@ -43,6 +56,10 @@ function initializeScene() {
   generateFlowersByStyle(flowerStyle);
 }
 
+/**
+ * 根據指定風格生成花朵
+ * @param {string} style - 花朵風格：'original', 'gothic', 'ink'
+ */
 function generateFlowersByStyle(style) {
   switch(style) {
     case 'gothic':
@@ -64,18 +81,26 @@ function switchFlowerStyle(newStyle) {
   generateFlowersByStyle(flowerStyle);
 }
 
+/**
+ * p5.js 主要渲染迴圈
+ * 每幀執行一次，負責更新和縪製整個場景
+ */
 function draw() {
   const cameraConfig = appConfig.getCameraConfig();
 
+  // 除錯管理器預處理
   debugManager.preRender(layerSystem, mainGraphics);
 
+  // 設定縪圖坐標系統
   mainGraphics.push();
   mainGraphics.translate(width, height);
 
+  // 更新場景狀態並渲染粒子
   sceneManager.updateSceneState(debugManager);
   sceneManager.renderParticles(mainGraphics, debugManager, cameraConfig.fov, cameraConfig.zoom);
   sceneManager.applyPostProcessing(mainGraphics, layerSystem, overAllTexture);
 
+  // 顯示除錯資訊
   debugManager.drawDebugInfo({
     angles: sceneManager.getAngles(),
     camera: { position: sceneManager.getCameraInfo().position, fov: cameraConfig.fov, zoom: cameraConfig.zoom },
@@ -110,10 +135,14 @@ function mouseReleased() {
   controls.handleMouseReleased();
 }
 
+/**
+ * 處理鍵盤按下事件
+ * 支援花朵風格切換和相機控制
+ */
 function keyPressed() {
   const cameraConfig = appConfig.getCameraConfig();
   
-  // 風格切換鍵位
+  // 花朵風格切換鍵位（1-3 數字鍵）
   if (key === '1') {
     switchFlowerStyle('original');
     console.log('切換到原始風格');
@@ -124,6 +153,7 @@ function keyPressed() {
     switchFlowerStyle('ink');
     console.log('切換到水墨風格 🖋️');
   } else {
+    // 其他鍵位交由控制系統處理
     controls.handleKeyPressed({ fov: cameraConfig.fov });
   }
 }
