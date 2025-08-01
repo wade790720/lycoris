@@ -47,7 +47,7 @@ const FLOWER_STYLES = {
         brushAlpha: 0.85,
         brushNoiseScale: () => random(15, 70),
         brushColorVariant: 0.3,
-        aspectRatio: 0.7,
+        aspectRatio: 0.5,
         brushCanvasSize: 120,
         brushTimeFactor: 0.08
       }
@@ -228,14 +228,13 @@ class FlowerBrushManager {
   // 獲取隨機花瓣畫刷組合 - 紫丁香紫白配色
   getRandomPetalBrushes() {
     return random([
-      this.mixedBrushes.purpleBlack,
+      // this.mixedBrushes.purpleBlack,
       this.mixedBrushes.purpleWhite,
       this.brushes.purple,              // 純紫色
-      this.brushes.white                // 純白色
+      // this.brushes.white                // 純白色
     ]);
   }
 }
-
 // 全域畫刷管理器實例
 let brushManager = new FlowerBrushManager();
 
@@ -247,7 +246,7 @@ function generateFlowers(options = {}) {
     flowerCount = 20,            // 要生成幾朵花
     position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, 
     customStyle = null,           // 自定義風格配置
-    clusterMode = false           // 叢生模式
+    clusterMode = true           // 叢生模式
   } = options;
 
   colorMode(HSB);               // 設定為HSB色彩模式(色相/飽和度/亮度)
@@ -257,39 +256,67 @@ function generateFlowers(options = {}) {
   brushManager.updateStyle(styleConfig);    // 更新風格配置
   brushManager.initializeAllBrushes();
 
-  // 【步驟2】批量生成薰衣草 - 薰衣草通常成叢生長
+  // 【步驟2】黃金比例構圖系統 - 世界級三層景深佈局
+  const goldenRatio = 1.618;
+  const centerX = (position.x[0] + position.x[1]) * 0.618; // 黃金分割點
+  const centerZ = (position.z[0] + position.z[1]) * 0.382;
+  
   if (clusterMode) {
-    // 叢生模式：創建幾個叢群，每個叢群內密集生長
-    const clusterCount = Math.ceil(flowerCount / 5);
+    // 世界級叢生模式：前景、中景、遠景三層分布
+    const layers = [
+      { depth: 0.2, count: Math.ceil(flowerCount * 0.3), scale: 1.2, focus: true },   // 前景層 - 大而清晰
+      { depth: 0.5, count: Math.ceil(flowerCount * 0.5), scale: 1.0, focus: true },   // 中景層 - 主要視覺焦點
+      { depth: 0.8, count: Math.ceil(flowerCount * 0.2), scale: 0.7, focus: false }   // 遠景層 - 小而模糊
+    ];
 
-    Array.from({ length: clusterCount }).forEach(() => {
-      // 為每個叢群選擇一個中心點
-      const clusterCenter = createVector(
-        random(position.x[0], position.x[1]),
-        random(position.y[0], position.y[1]) + 300,
-        random(position.z[0], position.z[1])
-      );
-
-      // 在叢群中心周圍生成薰衣草
-      const plantsInCluster = random(3, 7);
-      Array.from({ length: plantsInCluster }).forEach(() => {
-        const offset = createVector(
-          random(-25, 25),  // 叢群內的隨機偏移
-          random(-5, 5),
-          random(-25, 25)
+    layers.forEach((layer, layerIndex) => {
+      const clusterCount = Math.ceil(layer.count / 4);
+      
+      Array.from({ length: clusterCount }).forEach((_, clusterIndex) => {
+        // 使用螺旋黃金比例分布叢群
+        const angle = clusterIndex * 2.399; // 黃金角137.5度
+        const radius = sqrt(clusterIndex) * 80;
+        
+        const clusterCenter = createVector(
+          centerX + cos(angle) * radius * layer.depth,
+          random(position.y[0], position.y[1]) + 300 - layerIndex * 50, // 高度層次
+          centerZ + sin(angle) * radius * layer.depth
         );
-        generateFlowerPlant(clusterCenter.copy().add(offset));
+
+        // 每個叢群內的植物分布
+        const plantsInCluster = random(2, 6);
+        Array.from({ length: plantsInCluster }).forEach(() => {
+          const offset = createVector(
+            random(-30, 30) * layer.scale,
+            random(-10, 10),
+            random(-30, 30) * layer.scale
+          );
+          generateFlowerPlant(clusterCenter.copy().add(offset), layer);
+        });
       });
     });
   } else {
-    // 散佈模式：隨機分佈
-    console.log("散佈模式");
-    Array.from({ length: flowerCount }).forEach(() => {
-      generateFlowerPlant(createVector(
-        random(position.x[0], position.x[1]),
-        random(position.y[0], position.y[1]) + 300,
-        random(position.z[0], position.z[1])
-      ));
+    // 散佈模式：使用斐波那契螺旋分布
+    console.log("斐波那契螺旋散佈模式");
+    Array.from({ length: flowerCount }).forEach((_, i) => {
+      const angle = i * 2.399; // 黃金角
+      const radius = sqrt(i) * 25;
+      
+      // 創建自然的景深層次
+      const layerDepth = (sin(angle * 0.5) + 1) * 0.5; // 0-1的深度值
+      const scale = map(layerDepth, 0, 1, 0.6, 1.2);
+      
+      const plantPos = createVector(
+        centerX + cos(angle) * radius,
+        random(position.y[0], position.y[1]) + 300 - layerDepth * 60,
+        centerZ + sin(angle) * radius
+      );
+      
+      generateFlowerPlant(plantPos, { 
+        depth: layerDepth, 
+        scale: scale, 
+        focus: layerDepth < 0.7 
+      });
     });
   }
 }
@@ -310,78 +337,110 @@ function rotateVectorInPlane(v1, v2, v4, ang) {
   return rotatedV4;
 }
 
-// 【步驟3】生成單株植物 - 從指定位置開始生長一株完整的植物
-// 這是每株植物的生成起點，會啟動花莖的生長過程
-function generateFlowerPlant(pos) {
-  // 調用花莖生成器，開始從底部向上生長花莖
-  FlowerStemGenerator.generateStem(pos);
+// 【步驟3】生成單株植物 - 世界級構圖的植物生成系統
+// 每株植物根據其在構圖中的角色（前景/中景/遠景）採用不同的生長策略
+function generateFlowerPlant(pos, layerInfo = { depth: 0.5, scale: 1.0, focus: true }) {
+  // 根據景深調整植物特性
+  const plantConfig = {
+    position: pos,
+    scale: layerInfo.scale,
+    focusLevel: layerInfo.focus ? 1.0 : map(layerInfo.depth, 0, 1, 0.8, 0.3),
+    curveIntensity: map(layerInfo.depth, 0, 1, 1.5, 0.8), // 前景更多曲線
+    colorSaturation: map(layerInfo.depth, 0, 1, 1.0, 0.6) // 前景色彩更飽和
+  };
+  
+  // 調用增強版花莖生成器
+  FlowerStemGenerator.generateStem(pos, plantConfig);
 }
 
 // 【步驟4】花莖生成器 - 專門負責生成花朵植物的莖部
 // 這是植物生長的第一階段：從根部向上長出花莖
 class FlowerStemGenerator {
-  // 創建花莖粒子的基本屬性配置 - 定義花莖如何生長
-  static createStemParticleConfig(pos, plantGrowthDirection, plantDrawingLayer) {
+  // 創建世界級花莖粒子配置 - 融入S曲線和動態美學
+  static createStemParticleConfig(pos, plantGrowthDirection, plantDrawingLayer, plantConfig = {}) {
+    const scale = plantConfig.scale || 1.0;
+    const curveIntensity = plantConfig.curveIntensity || 1.0;
+    
     return {
       p: pos.copy(),                        // 起始位置
       vector: plantGrowthDirection,         // 生長方向向量
-      velocityShrinkFactor: 0.998,          // 速度衰減係數(讓莖部漸漸變細)
-      radiusShrinkFactor: 0.997,            // 半徑衰減係數(讓莖部漸漸變細)
+      velocityShrinkFactor: 0.998,          // 速度衰減係數
+      radiusShrinkFactor: 0.997,            // 半徑衰減係數
       acceleration: createVector(0, -0.005, 0), // 重力加速度
-      radius: random(15, 25),               // 莖部粗細
+      radius: random(15, 25) * scale,       // 根據景深調整粗細
       color: color(100, 100, 100),          // 莖部顏色
       preDelay: 0,                          // 延遲時間
-      renderJitter: 3,                      // 繪製時的隨機抖動
-      lifespan: random(60, 200),            // 生長時間(決定莖部長度)
-      mainGraphics: plantDrawingLayer.graphics, // 繪製圖層
-      maxSegments: 12,                      // 最大線段數
-      brush: random(brushManager.getMixedBrush('plant')),  // 主要畫刷(綠色系)
-      brush2: random(brushManager.getMixedBrush('plant')), // 次要畫刷(用於混合效果)
-      renderType: "brushImageLerp",         // 渲染類型(畫刷混合)
-      speedLimit: 3,                        // 速度限制
-      isBrushRotateFollowVelocity: true,    // 畫刷是否跟隨運動方向旋轉
+      renderJitter: 3 / scale,              // 遠景減少抖動
+      lifespan: random(30, 200) * scale,    // 根據景深調整長度
+      mainGraphics: plantDrawingLayer.graphics,
+      maxSegments: Math.ceil(12 * scale),   // 景深影響細節度
+      brush: random(brushManager.getMixedBrush('plant')),
+      brush2: random(brushManager.getMixedBrush('plant')),
+      renderType: "brushImageLerp",
+      speedLimit: 3,
+      isBrushRotateFollowVelocity: true,
+      plantConfig: plantConfig,             // 傳遞構圖配置
+      curvePhase: random(TWO_PI),           // S曲線相位
+      curveAmplitude: curveIntensity * random(0.3, 0.8), // S曲線幅度
 
       // 【關鍵回調】當花莖生長完畢時，生成70%-100%區間的花穗
       endCallback: (_this) => {
-        // 薰衣草特色：莖部100%完成後，在70%-100%區間生成花穗
-        const spikeCount = int(random(4, 9)); // 隨機生成4-6個花穗
+        // 薰衣草特色：密集的花穗分布，創造蓬鬆優雅的效果
+        const spikeCount = int(random(8, 15)); // 增加花穗數量：8-15個
         const totalStemLength = _this.originalLive; // 莖部總長度
 
         for (let i = 0; i < spikeCount; i++) {
-          // 計算花穗在70%-100%區間的位置
+          // 計算花穗在60%-100%區間的密集分布（擴展分布範圍）
           const progressRatio = i / Math.max(spikeCount - 1, 1); // 0到1的比例
-          const stemProgress = 0.7 + progressRatio * 0.3; // 70%到100%的分布
+          const stemProgress = 0.6 + progressRatio * 0.4; // 60%到100%的分布
           const heightOffset = totalStemLength * (1 - stemProgress); // 從頂端向下的偏移
+          
+          // 添加輕微的隨機偏移，讓花穗分布更自然
+          const randomOffset = random(-0.02, 0.02) * totalStemLength;
 
           // 為每個花穗創建沿莖部實際生長方向的位置
           const stemDirection = _this.vector.copy().normalize(); // 莖部生長方向
-          const offsetPosition = stemDirection.copy().mult(heightOffset); // 向下偏移到指定位置
+          const offsetPosition = stemDirection.copy().mult(heightOffset + randomOffset); // 向下偏移到指定位置
 
           const offsetParticle = {
             ..._this,
             p: _this.p.copy().add(offsetPosition) // 沿莖部實際方向分布
           };
 
-          // 延遲生成每個花穗，創造自然的綻放順序（從下往上）
+          // 縮短延遲時間，讓花穗更快速地綻放，增加密集感
           setTimeout(() => {
             flowerGenerator.generateFlower(offsetParticle);
-          }, (spikeCount - 1 - i) * 150); // 倒序延遲，從上往下觸發，但視覺上從下往上綻放
+          }, i * 60 + random(-15, 15)); // 從上到下逐次綻放
         }
       },
 
-      // 【動畫效果】每幀更新時執行的函數 - 讓莖部有自然搖擺
+      // 【世界級動畫效果】S曲線生長 + 自然風動
       tick: (_this) => {
-        // 使用柏林噪聲(Perlin Noise)模擬風吹效果
-        _this.p.x += map(noise(_this.randomId, frameCount / 50), 0, 1, -0.5, 0.5) * 0.6;     // 更輕微的X軸搖擺
-        _this.p.y += map(noise(frameCount / 50, _this.randomId, 1500), 0, 1, -0.3, 0.3) * 0.4; // 更輕微的Y軸搖擺
-        _this.p.z += map(noise(1500, _this.randomId, frameCount / 50), 0, 1, -0.5, 0.5) * 0.6; // 更輕微的Z軸搖擺
+        // S曲線生長軌跡 - 模擬自然植物的優雅彎曲
+        const progress = 1 - (_this.lifespan / _this.originalLive);
+        const sCurveOffset = sin(_this.curvePhase + progress * PI) * _this.curveAmplitude;
+        
+        // 應用S曲線到生長方向
+        _this.vector.x += sCurveOffset * 0.02;
+        _this.vector.z += cos(_this.curvePhase + progress * PI) * _this.curveAmplitude * 0.01;
+        
+        // 增強風動效果 - 模擬薰衣草田的波浪效果
+        const windStrength = plantConfig.scale || 1.0; // 前景植物更受風影響
+        _this.p.x += map(noise(_this.randomId, frameCount / 40), 0, 1, -0.8, 0.8) * windStrength;
+        _this.p.y += map(noise(frameCount / 60, _this.randomId, 1500), 0, 1, -0.2, 0.2) * 0.3;
+        _this.p.z += map(noise(1500, _this.randomId, frameCount / 45), 0, 1, -0.8, 0.8) * windStrength;
+        
+        // 添加群體波動效果 - 整片薰衣草田的協調搖擺
+        const groupWave = sin(frameCount / 30 + _this.p.x * 0.01) * 0.3;
+        _this.p.x += groupWave;
+        
         if (_this.r < 0.01) _this.r = 0;
       }
     };
   }
 
-  // 【步驟4.1】生成花莖主體 - 建立花莖粒子並開始生長動畫
-  static generateStem(pos) {
+  // 【步驟4.1】生成世界級花莖 - 融入構圖美學的花莖生成
+  static generateStem(pos, plantConfig = {}) {
     colorMode(HSB);
 
     // 計算植物生長方向 - 主要向上，但加入隨機傾斜讓植物更自然
@@ -393,9 +452,9 @@ class FlowerStemGenerator {
     // 選擇繪製圖層
     let plantDrawingLayer = layerSystem.getRandomLayer(0);
 
-    // 創建花莖粒子配置並加入場景
-    const particleConfig = this.createStemParticleConfig(pos, plantGrowthDirection, plantDrawingLayer);
-    sceneManager.addParticle(new Particle(particleConfig)); // 開始生長動畫
+    // 創建增強版花莖粒子配置並加入場景
+    const particleConfig = this.createStemParticleConfig(pos, plantGrowthDirection, plantDrawingLayer, plantConfig);
+    sceneManager.addParticle(new Particle(particleConfig)); // 開始世界級生長動畫
   }
 }
 
@@ -435,10 +494,10 @@ class FlowerGenerator {
       flowerCenterV,                    // 花朵中心方向向量
       vc1,                              // 花瓣基準方向
       vc1_tilted,                       // 傾斜後的花瓣方向
-      petalCount: int(random(6, 12)),   // 花瓣數量(彼岸花特色：細長花瓣)
-      flowerRadius: random(20, 50),     // 花朵半徑
-      startAng: 0,             // 起始角度(讓每朵花朝向不同)
-      rotateFactor: random(0.3, 1),     // 旋轉因子(影響花瓣搖擺幅度)
+      petalCount: int(random(12, 24)),  // 增加花瓣數量：12-24片，創造密集效果
+      flowerRadius: random(15, 35),     // 稍微縮小半徑，讓花瓣更密集
+      startAng: random(TWO_PI),         // 隨機起始角度，增加變化
+      rotateFactor: random(0.2, 0.6),   // 降低旋轉因子，讓花瓣更穩定優雅
       delayFlower: 0                    // 花朵生成延遲時間
     };
   }
@@ -482,19 +541,22 @@ class FlowerGenerator {
       radius: _r,
       vector: vc_final.copy().normalize().mult(vectorMultiplier),
       radiusShrinkFactor: shrinkFactor,
-      lifespan: _r * 2,
-      velocityShrinkFactor: 1.02,
+      lifespan: _r * 1.8,  // 稍微縮短生命週期，讓花瓣更精緻
+      velocityShrinkFactor: 1.015,  // 更溫和的速度衰減
       preDelay: flowerParams.delayFlower,
       mainGraphics: stemParticle.mainGraphics,
       color: color(0, 100, 100),
       brush: random(brushes),
       brush2: random(brushes),
-      brushLerpMap: k => k,
-      maxSegments: 5,
+      brushLerpMap: k => easeOutQuad(k),  // 使用更柔和的緩動函數
+      maxSegments: 8,  // 增加線段數，讓筆觸更細膩
       renderType: "brushImageLerp",
+      renderJitter: 1,  // 降低抖動，讓線條更平滑
+      brushAngleNoiseAmplitude: 0.1,  // 降低角度噪聲，更穩定的筆觸
       radiusMappingFunc: (p) => {
-        let _p = easeOutSine(easeOutSine(p)) + noise(stemParticle.randomId, stemParticle.lifespan / 10) / 10;
-        let rr = sqrt(1 - pow(map(_p, 0, 1, -1, 1), 2)) * 1.4;
+        // 更柔和的半徑映射函數，創造優雅的花瓣形狀
+        let _p = easeOutSine(easeOutSine(easeOutSine(p))) + noise(stemParticle.randomId, stemParticle.lifespan / 15) / 15;
+        let rr = sqrt(1 - pow(map(_p, 0, 1, -1, 1), 2)) * 1.2;  // 稍微縮小，更精緻
         return rr;
       }
     };
@@ -515,9 +577,7 @@ class FlowerGenerator {
 // 全域花朵生成器實例
 const flowerGenerator = new FlowerGenerator();
 
-
-
-// 【便利函數】快速生成不同風格的花朵 - 封裝了常用的風格配置
+// 【便利函數】快速生成不同風格的花朵 - 增強版世界級構圖
 const generateLycorisFlowers = (options = {}) => generateFlowers({ ...options, style: 'default' }); // 經典彼岸花
 const generateGothicFlowers = (options = {}) => generateFlowers({ ...options, style: 'gothic' });   // 哥德暗黑風
 const generateInkFlowers = (options = {}) => generateFlowers({ ...options, style: 'ink' });         // 中國水墨風
@@ -530,6 +590,6 @@ if (typeof module !== 'undefined' && module.exports) {
     generateGothicFlowers,
     generateInkFlowers,
     FlowerBrushManager,
-    FLOWER_STYLES
+    FLOWER_STYLES,
   };
 }
