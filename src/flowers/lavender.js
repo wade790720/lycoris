@@ -24,95 +24,32 @@
 - generateInkFlowers() // 中國水墨風格
 */
 
-// 預設風格配置
+// 紫丁香風格配置 - 基於 Lilas 的紫白優雅色調
 const FLOWER_STYLES = {
   default: {
     green: {
-      count: 10,
+      count: 6,
       settings: {
-        brushColor: () => color(random(60, 115) + random() * random() * 10,
-          random(80, 85) + random() * random() * 10,
-          random(10, 60) + random() * random() * 20),
+        // 深綠色莖部 - 參考卡芙卡服裝的深色基調
+        brushColor: () => color(random(140, 160), random(35, 55), random(20, 35)),
         brushAlpha: 1,
-        brushNoiseScale: () => random(10, 300),
-        brushColorVariant: 0.6,
-        brushCanvasSize: 200,
-        aspectRatio: 0.2
+        brushNoiseScale: () => random(30, 150),
+        brushColorVariant: 0.4,
+        brushCanvasSize: 160,
+        aspectRatio: 0.12
       }
     },
-    white: {
-      count: 5,
+    // 主要花穗顏色 - 漸層中段（經典薰衣草）
+    purple: {
+      count: 8,
       settings: {
-        brushColor: () => color(random(0, 10), random(0, 20), random(90, 100)),
-        brushAlpha: 1,
-        brushNoiseScale: () => random(10, 500),
-        brushColorVariant: 0.5,
-        aspectRatio: 0.3,
-        brushCanvasSize: 200,
-        brushTimeFactor: 0.1
-      }
-    },
-    black: {
-      count: 5,
-      settings: {
-        brushColor: () => color(random(0, 10), random(0, 20), random(0, 30)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(10, 500),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.2,
-        brushCanvasSize: 200,
-        brushTimeFactor: 0.1
-      }
-    },
-    red: {
-      count: 5,
-      settings: {
-        brushColor: () => color(random(340, 390) % 360, random(90, 98), random(80, 100)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(10, 50),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.25,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    },
-    yellow: {
-      count: 5,
-      settings: {
-        brushColor: () => color(random(35, 50), random(90, 98), random(80, 95)),
-        brushAlpha: 1,
-        brushNoiseScale: 20,
+        brushColor: () => color(random(265, 280), random(45, 65), random(35, 55)),
+        brushAlpha: 0.85,
+        brushNoiseScale: () => random(15, 70),
         brushColorVariant: 0.3,
-        aspectRatio: 0.2,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    }
-  },
-  gothic: {
-    green: {
-      count: 10,
-      settings: {
-        // 深紫色莖部
-        brushColor: () => color(random(280, 300), random(60, 80), random(25, 45)),
-        brushAlpha: 1,
-        brushNoiseScale: () => random(10, 300),
-        brushColorVariant: 0.6,
-        brushCanvasSize: 200,
-        aspectRatio: 0.2
-      }
-    },
-    white: {
-      count: 5,
-      settings: {
-        // 暗金色花蕊
-        brushColor: () => color(random(40, 50), random(70, 85), random(40, 60)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(10, 500),
-        brushColorVariant: 0.5,
-        aspectRatio: 0.3,
-        brushCanvasSize: 200,
-        brushTimeFactor: 0.1
+        aspectRatio: 0.7,
+        brushCanvasSize: 120,
+        brushTimeFactor: 0.08
       }
     },
     black: {
@@ -128,99 +65,104 @@ const FLOWER_STYLES = {
         brushTimeFactor: 0.1
       }
     },
-    red: {
-      count: 5,
+    // 微白色花穗 - 低調的淡白點綴
+    white: {
+      count: 2,  // 🎨 調整這個數字來控制白色花瓣數量 (建議: 1-20)
       settings: {
-        // 深紅近黑花瓣
-        brushColor: () => color(random(350, 10), random(80, 95), random(15, 35)),
-        brushAlpha: 0.9,
-        brushNoiseScale: () => random(10, 50),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.25,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    },
-    yellow: {
-      count: 5,
-      settings: {
-        // 深橙色花心
-        brushColor: () => color(random(20, 35), random(85, 95), random(50, 70)),
-        brushAlpha: 1,
-        brushNoiseScale: 20,
-        brushColorVariant: 0.4,
-        aspectRatio: 0.2,
-        brushCanvasSize: 300,
+        // 畫筆顏色 - 設定花朵的基本顏色 (色相, 飽和度, 亮度)
+        brushColor: () => color(random(0, 10), random(0, 20), random(90, 100)),
+        
+        // 畫筆透明度 - 控制花朵的透明程度 (0.0=完全透明, 1.0=完全不透明)
+        brushAlpha: 0.3,
+        
+        // 筆刷噪聲縮放 - 控制筆觸的粗糙程度/紋理細節 (數值越大越粗糙)
+        brushNoiseScale: () => random(100, 500),
+        
+        // 顏色變化幅度 - 控制每朵花顏色的隨機變化程度 (0.0=無變化, 1.0=最大變化)
+        brushColorVariant: 0.5,
+        
+        // 長寬比 - 控制花瓣的形狀比例 (數值越小越細長, 越大越圓)
+        aspectRatio: 0.7,
+        
+        // 畫筆畫布大小 - 控制單個花瓣的大小 (數值越大花瓣越大)
+        brushCanvasSize: 50,
+        
+        // 時間因子 - 控制花朵綻放的速度 (數值越大綻放越快)
         brushTimeFactor: 0.1
       }
     }
   },
-  ink: {
+  // 暮光藍紫色系風格 - 深靛藍與灰藍色調
+  twilight: {
     green: {
-      count: 8,
+      count: 6,
       settings: {
-        // 墨綠竹韻 - 水墨畫風格
-        brushColor: () => color(random(120, 140), random(20, 40), random(15, 35)),
-        brushAlpha: 0.6,
-        brushNoiseScale: () => random(100, 400),
-        brushColorVariant: 0.3,
-        brushCanvasSize: 200,
-        aspectRatio: 0.06
+        // 深靛藍色莖部 - 沉靜的背景氛圍
+        brushColor: () => color(240, random(80, 90), random(15, 20)), // #1e1e2b 深靛藍
+        brushAlpha: 1,
+        brushNoiseScale: () => random(30, 150),
+        brushColorVariant: 0.4,
+        brushCanvasSize: 160,
+        aspectRatio: 0.12
       }
     },
-    white: {
-      count: 12,
-      settings: {
-        // 宣紙白 - 留白美學
-        brushColor: () => color(random(30, 50), random(5, 15), random(92, 100)),
-        brushAlpha: 0.4,
-        brushNoiseScale: () => random(150, 600),
-        brushColorVariant: 0.2,
-        aspectRatio: 0.6,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.02
-      }
-    },
-    black: {
+    // 主要花穗顏色 - 柔和紫灰
+    purple: {
       count: 15,
       settings: {
-        // 濃墨重彩 - 水墨精髓
-        brushColor: () => color(random(0, 20), random(10, 30), random(5, 25)),
+        // 柔和紫灰色 - 樹梢柔光
+        brushColor: () => color(240, random(30, 45), random(75, 85)), // #b0b0cb 柔和紫灰
         brushAlpha: 0.8,
-        brushNoiseScale: () => random(80, 500),
-        brushColorVariant: 0.4,
-        aspectRatio: 0.2,
-        brushCanvasSize: 350,
-        brushTimeFactor: 0.03
+        brushNoiseScale: () => random(15, 80),
+        brushColorVariant: 0.35,
+        aspectRatio: 0.28,
+        brushCanvasSize: 125,
+        brushTimeFactor: 0.06
       }
     },
-    red: {
-      count: 4,
+    // 灰藍色花穗 - 樹蔭氛圍
+    darkPurple: {
+      count: 10,
       settings: {
-        // 朱砂印 - 傳統印章色
-        brushColor: () => color(random(5, 15), random(70, 90), random(50, 70)),
-        brushAlpha: 0.7,
-        brushNoiseScale: () => random(40, 200),
-        brushColorVariant: 0.5,
-        aspectRatio: 0.15,
-        brushCanvasSize: 180,
+        // 灰藍色 - 樹蔭中的沉靜氛圍
+        brushColor: () => color(230, random(40, 55), random(25, 35)), // #2f2f46 灰藍
+        brushAlpha: 0.75,
+        brushNoiseScale: () => random(10, 60),
+        brushColorVariant: 0.4,
+        aspectRatio: 0.22,
+        brushCanvasSize: 110,
+        brushTimeFactor: 0.08
+      }
+    },
+    // 淡藍紫色花穗 - 光斑中的紫光
+    lightPurple: {
+      count: 12,
+      settings: {
+        // 淡藍紫色 - 光斑中柔和的紫光
+        brushColor: () => color(240, random(25, 40), random(60, 75)), // #8383a4 淡藍
+        brushAlpha: 0.65,
+        brushNoiseScale: () => random(20, 100),
+        brushColorVariant: 0.3,
+        aspectRatio: 0.32,
+        brushCanvasSize: 140,
         brushTimeFactor: 0.05
       }
     },
-    yellow: {
-      count: 6,
+    // 藍紫色花穗 - 中景層次
+    white: {
+      count: 8,
       settings: {
-        // 淺墨灰 - 山水意境
-        brushColor: () => color(random(0, 30), random(8, 20), random(60, 80)),
-        brushAlpha: 0.5,
-        brushNoiseScale: 30,
-        brushColorVariant: 0.3,
-        aspectRatio: 0.18,
-        brushCanvasSize: 220,
-        brushTimeFactor: 0.02
+        // 較深的藍紫色 - 中景層次與陰影過渡
+        brushColor: () => color(245, random(45, 60), random(40, 50)), // #434369 較深藍紫
+        brushAlpha: 0.7,
+        brushNoiseScale: () => random(30, 150),
+        brushColorVariant: 0.2,
+        aspectRatio: 0.35,
+        brushCanvasSize: 130,
+        brushTimeFactor: 0.04
       }
     }
-  }
+  },
 };
 
 // 花朵繪製相關的畫刷管理器
@@ -263,14 +205,13 @@ class FlowerBrushManager {
   initializeAllBrushes() {
     // 生成基本色彩畫刷
     this.brushes.green = this._generateBrushSet(this.brushConfigs.green);
+    this.brushes.purple = this._generateBrushSet(this.brushConfigs.purple);
     this.brushes.white = this._generateBrushSet(this.brushConfigs.white);
     this.brushes.black = this._generateBrushSet(this.brushConfigs.black);
-    this.brushes.red = this._generateBrushSet(this.brushConfigs.red);
-    this.brushes.yellow = this._generateBrushSet(this.brushConfigs.yellow);
 
-    // 生成混合效果畫刷
-    this.mixedBrushes.redWhite = this._generateMixedBrushes(this.brushes.red, this.brushes.white);
-    this.mixedBrushes.redBlack = this._generateMixedBrushes(this.brushes.red, this.brushes.black);
+    // 生成混合效果畫刷 - 紫丁香特色層次
+    this.mixedBrushes.purpleBlack = this._generateMixedBrushes(this.brushes.purple, this.brushes.black);
+    this.mixedBrushes.purpleWhite = this._generateMixedBrushes(this.brushes.purple, this.brushes.white); // 紫白混合
     this.mixedBrushes.plant = this._generateMixedBrushes(this.brushes.green, this.brushes.green);
   }
 
@@ -284,9 +225,14 @@ class FlowerBrushManager {
     return this.mixedBrushes[type] || [];
   }
 
-  // 獲取隨機花瓣畫刷組合
+  // 獲取隨機花瓣畫刷組合 - 紫丁香紫白配色
   getRandomPetalBrushes() {
-    return random([this.mixedBrushes.redBlack, this.mixedBrushes.redWhite, this.brushes.red]);
+    return random([
+      this.mixedBrushes.purpleBlack,
+      this.mixedBrushes.purpleWhite,
+      this.brushes.purple,              // 純紫色
+      this.brushes.white                // 純白色
+    ]);
   }
 }
 
@@ -298,9 +244,10 @@ let brushManager = new FlowerBrushManager();
 function generateFlowers(options = {}) {
   const {
     style = 'default',           // 選擇風格：default(經典彼岸花)、gothic(哥德風)、ink(水墨風)
-    flowerCount = 10,            // 要生成幾朵花
-    position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, // 3D空間位置範圍
-    customStyle = null           // 自定義風格配置
+    flowerCount = 20,            // 要生成幾朵花
+    position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, 
+    customStyle = null,           // 自定義風格配置
+    clusterMode = false           // 叢生模式
   } = options;
 
   colorMode(HSB);               // 設定為HSB色彩模式(色相/飽和度/亮度)
@@ -308,17 +255,43 @@ function generateFlowers(options = {}) {
   // 【步驟1】初始化畫刷系統 - 根據選定風格準備所有繪圖工具
   const styleConfig = customStyle || FLOWER_STYLES[style] || FLOWER_STYLES.default;
   brushManager.updateStyle(styleConfig);    // 更新風格配置
-  brushManager.initializeAllBrushes();      // 生成各種顏色的畫刷集合
+  brushManager.initializeAllBrushes();
 
-  // 【步驟2】批量生成植物 - 在指定範圍內隨機生成多株植物
-  Array.from({ length: flowerCount }).forEach(() => {
-    // 為每株植物分配一個隨機的3D位置
-    generateFlowerPlant(createVector(
-      random(position.x[0], position.x[1]),     // X軸位置
-      random(position.y[0], position.y[1]) + 300, // Y軸位置(+300讓花朵從底部開始)
-      random(position.z[0], position.z[1])      // Z軸位置
-    ));
-  });
+  // 【步驟2】批量生成薰衣草 - 薰衣草通常成叢生長
+  if (clusterMode) {
+    // 叢生模式：創建幾個叢群，每個叢群內密集生長
+    const clusterCount = Math.ceil(flowerCount / 5);
+
+    Array.from({ length: clusterCount }).forEach(() => {
+      // 為每個叢群選擇一個中心點
+      const clusterCenter = createVector(
+        random(position.x[0], position.x[1]),
+        random(position.y[0], position.y[1]) + 300,
+        random(position.z[0], position.z[1])
+      );
+
+      // 在叢群中心周圍生成薰衣草
+      const plantsInCluster = random(3, 7);
+      Array.from({ length: plantsInCluster }).forEach(() => {
+        const offset = createVector(
+          random(-25, 25),  // 叢群內的隨機偏移
+          random(-5, 5),
+          random(-25, 25)
+        );
+        generateFlowerPlant(clusterCenter.copy().add(offset));
+      });
+    });
+  } else {
+    // 散佈模式：隨機分佈
+    console.log("散佈模式");
+    Array.from({ length: flowerCount }).forEach(() => {
+      generateFlowerPlant(createVector(
+        random(position.x[0], position.x[1]),
+        random(position.y[0], position.y[1]) + 300,
+        random(position.z[0], position.z[1])
+      ));
+    });
+  }
 }
 
 // 3D向量數學工具函數 - 處理複雜的向量旋轉運算
@@ -352,34 +325,57 @@ class FlowerStemGenerator {
     return {
       p: pos.copy(),                        // 起始位置
       vector: plantGrowthDirection,         // 生長方向向量
-      velocityShrinkFactor: 0.995,          // 速度衰減係數(讓莖部漸漸變細)
-      radiusShrinkFactor: 0.995,            // 半徑衰減係數(讓莖部漸漸變細)
-      acceleration: createVector(0, -0.01, 0), // 重力加速度
+      velocityShrinkFactor: 0.998,          // 速度衰減係數(讓莖部漸漸變細)
+      radiusShrinkFactor: 0.997,            // 半徑衰減係數(讓莖部漸漸變細)
+      acceleration: createVector(0, -0.005, 0), // 重力加速度
       radius: random(15, 25),               // 莖部粗細
       color: color(100, 100, 100),          // 莖部顏色
       preDelay: 0,                          // 延遲時間
-      renderJitter: 5,                      // 繪製時的隨機抖動
-      lifespan: random(40, 250),            // 生長時間(決定莖部長度)
+      renderJitter: 3,                      // 繪製時的隨機抖動
+      lifespan: random(60, 200),            // 生長時間(決定莖部長度)
       mainGraphics: plantDrawingLayer.graphics, // 繪製圖層
-      maxSegments: 10,                      // 最大線段數
+      maxSegments: 12,                      // 最大線段數
       brush: random(brushManager.getMixedBrush('plant')),  // 主要畫刷(綠色系)
       brush2: random(brushManager.getMixedBrush('plant')), // 次要畫刷(用於混合效果)
       renderType: "brushImageLerp",         // 渲染類型(畫刷混合)
-      speedLimit: 5,                        // 速度限制
+      speedLimit: 3,                        // 速度限制
       isBrushRotateFollowVelocity: true,    // 畫刷是否跟隨運動方向旋轉
 
-      // 【關鍵回調】當花莖生長完畢時，自動觸發花朵生成
+      // 【關鍵回調】當花莖生長完畢時，生成70%-100%區間的花穗
       endCallback: (_this) => {
-        flowerGenerator.generateFlower(_this); // 在莖部頂端生成花朵
+        // 薰衣草特色：莖部100%完成後，在70%-100%區間生成花穗
+        const spikeCount = int(random(4, 9)); // 隨機生成4-6個花穗
+        const totalStemLength = _this.originalLive; // 莖部總長度
+
+        for (let i = 0; i < spikeCount; i++) {
+          // 計算花穗在70%-100%區間的位置
+          const progressRatio = i / Math.max(spikeCount - 1, 1); // 0到1的比例
+          const stemProgress = 0.7 + progressRatio * 0.3; // 70%到100%的分布
+          const heightOffset = totalStemLength * (1 - stemProgress); // 從頂端向下的偏移
+
+          // 為每個花穗創建沿莖部實際生長方向的位置
+          const stemDirection = _this.vector.copy().normalize(); // 莖部生長方向
+          const offsetPosition = stemDirection.copy().mult(heightOffset); // 向下偏移到指定位置
+
+          const offsetParticle = {
+            ..._this,
+            p: _this.p.copy().add(offsetPosition) // 沿莖部實際方向分布
+          };
+
+          // 延遲生成每個花穗，創造自然的綻放順序（從下往上）
+          setTimeout(() => {
+            flowerGenerator.generateFlower(offsetParticle);
+          }, (spikeCount - 1 - i) * 150); // 倒序延遲，從上往下觸發，但視覺上從下往上綻放
+        }
       },
 
       // 【動畫效果】每幀更新時執行的函數 - 讓莖部有自然搖擺
       tick: (_this) => {
         // 使用柏林噪聲(Perlin Noise)模擬風吹效果
-        _this.p.x += map(noise(_this.randomId, frameCount / 30), 0, 1, -1, 1) * 1.1;     // X軸搖擺
-        _this.p.y += map(noise(frameCount / 30, _this.randomId, 1000), 0, 1, -1, 1) * 1.1; // Y軸搖擺
-        _this.p.z += map(noise(1000, _this.randomId, frameCount / 30), 0, 1, -1, 1) * 1.1; // Z軸搖擺
-        if (_this.r < 0.01) _this.r = 0;    // 防止半徑變成負數
+        _this.p.x += map(noise(_this.randomId, frameCount / 50), 0, 1, -0.5, 0.5) * 0.6;     // 更輕微的X軸搖擺
+        _this.p.y += map(noise(frameCount / 50, _this.randomId, 1500), 0, 1, -0.3, 0.3) * 0.4; // 更輕微的Y軸搖擺
+        _this.p.z += map(noise(1500, _this.randomId, frameCount / 50), 0, 1, -0.5, 0.5) * 0.6; // 更輕微的Z軸搖擺
+        if (_this.r < 0.01) _this.r = 0;
       }
     };
   }
@@ -391,7 +387,7 @@ class FlowerStemGenerator {
     // 計算植物生長方向 - 主要向上，但加入隨機傾斜讓植物更自然
     let plantGrowthDirection = Rotation3D.rotateRandom(
       createVector(0, -random(0.9, 1) - 1, 0),  // 基礎向上向量
-      random(PI / 2)                              // 隨機傾斜角度
+      random(radians(35))                     // 隨機傾斜角度 (限制在20度以內)
     );
 
     // 選擇繪製圖層
@@ -418,7 +414,7 @@ class FlowerGenerator {
     this._generatePetals(stemParticle, flowerParams);
 
     // 【步驟5.3】再生成內層花蕊 - 較細長的雄蕊和雌蕊
-    this._generateStamens(stemParticle, flowerParams);
+    // this._generateStamens(stemParticle, flowerParams);
   }
 
   // 【步驟5.1.1】計算花朵的基本參數 - 將複雜的3D數學運算集中管理
@@ -429,19 +425,20 @@ class FlowerGenerator {
     // 計算花朵中心的生長方向(相對於莖部有隨機傾斜)
     const flowerCenterV = Rotation3D.rotateRandom(stemParticle.vector.copy(), random(PI / 2) * random(0.5, 1));
 
-    // 【重要】計算花瓣的基準向量 - 定義花瓣在3D空間中的排列方向
+    // 【重要】計算花瓣的基準向量 - 薰衣草花穗向斜上內彎
     const vc1 = stemParticle.vector.cross(createVector(1, 0, -stemParticle.vector.x / stemParticle.vector.z)).normalize();
-    const vc1_tilted = p5.Vector.lerp(vc1, stemParticle.vector, random(0.3, 0.5)).normalize();
+    // 薰衣草特色：花穗更向上且內彎，增加向莖部方向的偏移
+    const vc1_tilted = p5.Vector.lerp(vc1, stemParticle.vector, random(-0.4, -0.2)).normalize();
 
     return {
       flowerScale,                      // 花朵整體縮放比例
       flowerCenterV,                    // 花朵中心方向向量
       vc1,                              // 花瓣基準方向
       vc1_tilted,                       // 傾斜後的花瓣方向
-      petalCount: int(random(20, 40)),  // 花瓣數量(彼岸花特色：細長花瓣)
-      flowerRadius: random(30, 50),     // 花朵半徑
-      startAng: random(PI),             // 起始角度(讓每朵花朝向不同)
-      rotateFactor: random(0.3, 1.2),   // 旋轉因子(影響花瓣搖擺幅度)
+      petalCount: int(random(6, 12)),   // 花瓣數量(彼岸花特色：細長花瓣)
+      flowerRadius: random(20, 50),     // 花朵半徑
+      startAng: 0,             // 起始角度(讓每朵花朝向不同)
+      rotateFactor: random(0.3, 1),     // 旋轉因子(影響花瓣搖擺幅度)
       delayFlower: 0                    // 花朵生成延遲時間
     };
   }
@@ -460,9 +457,9 @@ class FlowerGenerator {
         random(PI / 3)                                                // 隨機傾斜(讓花瓣自然散開)
       );
 
-      // 創建花瓣粒子的配置參數
+      // 創建花瓣粒子的配置參數 - 薰衣草花穗向斜上內彎
       const petalConfig = this._createPetalParticleConfig(
-        stemParticle, flowerParams, vc_final, 1.2, 0.995
+        stemParticle, flowerParams, vc_final, -0.8, 0.995  // 負值且減小絕對值，實現斜上內彎
       );
 
       // 【花瓣動畫】添加花瓣特有的動態旋轉效果 - 模擬在風中搖擺
@@ -472,31 +469,6 @@ class FlowerGenerator {
 
       // 將花瓣粒子加入場景開始動畫
       sceneManager.addParticle(new Particle(petalConfig));
-    }
-  }
-
-  // 【步驟5.3】生成花蕊 - 內層較細長的雄蕊和雌蕊結構
-  _generateStamens(stemParticle, flowerParams) {
-    const stamenRadius = random(30, 40);   // 花蕊長度
-    const stamenCount = random(35, 40);    // 花蕊數量(通常比花瓣稍多)
-
-    // 環形排列生成所有花蕊
-    for (let i = 0; i < stamenCount; i++) {
-      // 計算花蕊方向 - 相比花瓣更向內彎曲
-      const vc1_tilted = p5.Vector.lerp(flowerParams.vc1, stemParticle.vector, -random(0.00, 0.21)).normalize();
-      const vc_final = Rotation3D.rotateAroundAxis(
-        vc1_tilted,                                           // 向內彎曲的基準方向
-        stemParticle.vector,                                  // 旋轉軸
-        flowerParams.startAng + i / stamenCount * 2 * PI      // 環形分布
-      );
-
-      // 創建花蕊粒子配置
-      const stamenConfig = this._createStamenParticleConfig(
-        stemParticle, flowerParams, vc_final, stamenRadius
-      );
-
-      // 將花蕊粒子加入場景開始動畫
-      sceneManager.addParticle(new Particle(stamenConfig));
     }
   }
 
@@ -528,36 +500,6 @@ class FlowerGenerator {
     };
   }
 
-  // 創建花蕊粒子配置
-  _createStamenParticleConfig(stemParticle, flowerParams, vc_final, stamenRadius) {
-    const _r = stamenRadius * flowerParams.flowerScale;
-    const brushes = brushManager.getRandomPetalBrushes();
-
-    return {
-      p: stemParticle.p.copy(),
-      radius: _r,
-      vector: vc_final.copy().normalize().mult(-random(2, 3)),
-      radiusShrinkFactor: 0.975,
-      lifespan: _r * 2,
-      velocityShrinkFactor: 1.02,
-      preDelay: flowerParams.delayFlower,
-      mainGraphics: stemParticle.mainGraphics,
-      color: color(0, 0, 100),
-      brush: random(brushes),
-      brush2: random(brushes),
-      brushLerpMap: k => k,
-      maxSegments: 8,
-      renderType: "brushImageLerp",
-      tick: (_this) => {
-        let amp = 1 / pow(map(_this.lifespan / _this.originalLive, 1, 0, 3, 0.3), 2) / 5 * flowerParams.rotateFactor / 5;
-        _this.vector = rotateVectorInPlane(flowerParams.flowerCenterV, vc_final, _this.vector, amp);
-      },
-      // 【步驟6】當花蕊生長完畢時，在頂端生成花粉效果
-      endCallback: (_this) => {
-        flowerEndGenerator.generateFlowerEnd(_this);  // 生成黃色花粉粒子
-      }
-    };
-  }
 
   // 應用花瓣的複雜旋轉動畫 - 模擬花瓣在風中的搖擺
   _applyPetalRotation(particle, flowerParams, vc_final) {
@@ -573,46 +515,7 @@ class FlowerGenerator {
 // 全域花朵生成器實例
 const flowerGenerator = new FlowerGenerator();
 
-// 【步驟6】花朵結尾效果生成器 - 負責花蕊末端的黃色花粉效果
-// 這是植物生成的最後階段：在花蕊頂端綻放出金黃色的花粉
-class FlowerEndGenerator {
-  generateFlowerEnd(stamenParticle) {
-    const pollenRadius = random(4, 8);         // 花粉粒子大小
-    const yellowBrushes = brushManager.getBrush('yellow'); // 使用黃色畫刷
 
-    const pollenConfig = {
-      p: stamenParticle.p.copy(),              // 從花蕊頂端位置開始
-      radius: pollenRadius,                    // 花粉粒子半徑
-      vector: Rotation3D.rotateRandom(         // 花粉散布方向(隨機向四周飄散)
-        stamenParticle.vector.copy().normalize().mult(random(0.8, 1)),
-        random(-1, 1) * PI
-      ),
-      radiusShrinkFactor: 0.98,                // 花粉逐漸變小
-      lifespan: pollenRadius * 2.5,            // 花粉持續時間
-      velocityShrinkFactor: 0.9,               // 速度逐漸減慢
-      preDelay: 0,                             // 無延遲
-      mainGraphics: stamenParticle.mainGraphics,
-      color: color(50, 100, 100),              // 亮黃色(HSB色彩)
-      brush: random(yellowBrushes),            // 隨機選擇黃色畫刷
-      brush2: random(yellowBrushes),
-      brushLerpMap: k => k,
-      maxSegments: 5,
-      renderType: "brushImageLerp",
-      radiusMappingFunc: (p) => {
-        // 花粉粒子的大小變化曲線 - 先變大再變小，模擬真實花粉
-        let _p = easeInOutQuad(p);
-        let rr = sqrt(1 - pow(map(_p, 0, 1, -1, 1), 2));
-        return rr;
-      }
-    };
-
-    // 【完成】將花粉粒子加入場景，植物生成流程至此完成！
-    sceneManager.addParticle(new Particle(pollenConfig));
-  }
-}
-
-// 全域花朵結尾效果生成器實例
-const flowerEndGenerator = new FlowerEndGenerator();
 
 // 【便利函數】快速生成不同風格的花朵 - 封裝了常用的風格配置
 const generateLycorisFlowers = (options = {}) => generateFlowers({ ...options, style: 'default' }); // 經典彼岸花

@@ -7,7 +7,7 @@ let controls;          // 互動控制
 let debugManager;      // 除錯管理器
 let sceneManager;      // 場景管理器
 let appConfig;         // 應用程式配置
-let flowerStyle = 'ink'; // 花朵風格：'original', 'gothic', 'ink'
+let flowerStyle = 'original'; // 花朵風格：'original', 'gothic', 'ink'
 
 /**
  * p5.js 預載函數
@@ -58,7 +58,7 @@ function initializeScene() {
 
 /**
  * 根據指定風格生成花朵
- * @param {string} style - 花朵風格：'original', 'gothic', 'ink'
+ * @param {string} style - 花朵風格：'original', 'gothic', 'ink', 'twilight'
  */
 function generateFlowersByStyle(style) {
   switch(style) {
@@ -67,6 +67,9 @@ function generateFlowersByStyle(style) {
       break;
     case 'ink':
       generateInkFlowers();
+      break;
+    case 'twilight':
+      generateFlowers({ style: 'twilight' });
       break;
     case 'original':
     default:
@@ -142,7 +145,7 @@ function mouseReleased() {
 function keyPressed() {
   const cameraConfig = appConfig.getCameraConfig();
   
-  // 花朵風格切換鍵位（1-3 數字鍵）
+  // 花朵風格切換鍵位（1-4 數字鍵）
   if (key === '1') {
     switchFlowerStyle('original');
     console.log('切換到原始風格');
@@ -152,6 +155,9 @@ function keyPressed() {
   } else if (key === '3') {
     switchFlowerStyle('ink');
     console.log('切換到水墨風格 🖋️');
+  } else if (key === '4') {
+    switchFlowerStyle('twilight');
+    console.log('切換到暮光藍紫風格 🌙');
   } else {
     // 其他鍵位交由控制系統處理
     controls.handleKeyPressed({ fov: cameraConfig.fov });
