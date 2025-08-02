@@ -492,7 +492,7 @@ let brushManager = new FlowerBrushManager();
 function generateFlowers(options = {}) {
   const {
     style = 'default',           // 選擇風格：default(經典彼岸花)、gothic(哥德風)、ink(水墨風)
-    flowerCount = 5,            // 要生成幾朵花
+    flowerCount = 40,            // 要生成幾朵花
     position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, 
     customStyle = null,           // 自定義風格配置
     clusterMode = true           // 叢生模式

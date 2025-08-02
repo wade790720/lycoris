@@ -63,7 +63,7 @@ function initializeSystems() {
   mainGraphics = createGraphics(width, height);
   controls = new Controls();
   brushSystem = new BrushSystem();
-  layerSystem = new LayerSystem(5, appConfig.debug); // 使用 AppConfig 的 debug 設定
+  layerSystem = new LayerSystem(12, appConfig.debug); // 使用 AppConfig 的 debug 設定
 }
 
 function initializeScene() {
