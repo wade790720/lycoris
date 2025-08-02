@@ -2,7 +2,7 @@
 class BrushSystem {
   constructor() {
     this.brushes = [];
-    this.sharedCanvas = createGraphics(300, 300, WEBGL); 
+    this.sharedCanvas = createGraphics(300, 300, WEBGL);
     this.sharedShader = this.sharedCanvas.createShader(vert, frag);
 
     this.sharedCanvas.setAttributes({
@@ -66,7 +66,7 @@ class Brush {
     this.brushHeadCanvas.resizeCanvas(this.brushCanvasSize, this.brushCanvasSize);
     this.brushHeadCanvas.shader(this.brushShader);
 
-     // 設置 shader 的 uniform 變量
+    // 設置 shader 的 uniform 變量
     this.brushShader.setUniform('u_resolution', [1, 1]);
     this.brushShader.setUniform('u_time', frameCount / 1000);
     this.brushShader.setUniform('u_brushColor', [red(this.brushColor) / 255, green(this.brushColor) / 255, blue(this.brushColor) / 255]);

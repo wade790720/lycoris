@@ -38,7 +38,6 @@ function setup() {
  */
 function initializeApplication() {
   debugManager = new DebugManager();
-  // 同步 AppConfig 的 debug 狀態到 DebugManager
   debugManager.setEnabled(appConfig.debug);
   sceneManager = new SceneManager();
   
@@ -64,7 +63,7 @@ function initializeSystems() {
   mainGraphics = createGraphics(width, height);
   controls = new Controls();
   brushSystem = new BrushSystem();
-  layerSystem = new LayerSystem(10, false);
+  layerSystem = new LayerSystem(5, appConfig.debug); // 使用 AppConfig 的 debug 設定
 }
 
 function initializeScene() {
