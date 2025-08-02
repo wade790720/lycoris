@@ -7,7 +7,7 @@ let controls;          // 互動控制
 let debugManager;      // 除錯管理器
 let sceneManager;      // 場景管理器
 let appConfig;         // 應用程式配置
-let flowerStyle = 'original'; // 花朵風格：'original', 'gothic', 'ink'
+let styleManager;      // 統一風格管理器
 
 /**
  * p5.js 預載函數
@@ -39,6 +39,20 @@ function setup() {
 function initializeApplication() {
   debugManager = new DebugManager();
   sceneManager = new SceneManager();
+  
+  // 根據頁面類型初始化對應的風格管理器
+  if (typeof LycorisStyleManager !== 'undefined') {
+    // index.html - 使用 Lycoris 風格管理器
+    styleManager = new LycorisStyleManager();
+    console.log('🌺 載入 Lycoris 風格管理器');
+  } else if (typeof LavenderStyleManager !== 'undefined') {
+    // lavender.html - 使用 Lavender 風格管理器  
+    styleManager = new LavenderStyleManager();
+    console.log('🌿 載入 Lavender 風格管理器');
+  } else {
+    console.error('❌ 找不到對應的風格管理器');
+    return;
+  }
 
   initializeSystems();
   initializeScene();
@@ -53,36 +67,17 @@ function initializeSystems() {
 
 function initializeScene() {
   sceneManager.initialize();
-  generateFlowersByStyle(flowerStyle);
-}
-
-/**
- * 根據指定風格生成花朵
- * @param {string} style - 花朵風格：'original', 'gothic', 'ink', 'twilight'
- */
-function generateFlowersByStyle(style) {
-  switch(style) {
-    case 'gothic':
-      generateGothicFlowers();
-      break;
-    case 'ink':
-      generateInkFlowers();
-      break;
-    case 'twilight':
-      generateFlowers({ style: 'twilight' });
-      break;
-    case 'original':
-    default:
-      generateFlowers();
-      break;
+  
+  // 根據風格管理器類型初始化預設風格
+  if (styleManager) {
+    // 根據管理器類型決定預設風格
+    const defaultStyle = styleManager.constructor.name === 'LycorisStyleManager' ? 'original' : 'default';
+    styleManager.switchToStyle(defaultStyle);
+    styleManager.startAutoRotation();
   }
 }
 
-function switchFlowerStyle(newStyle) {
-  flowerStyle = newStyle;
-  sceneManager.clearScene();
-  generateFlowersByStyle(flowerStyle);
-}
+// 原有的風格切換函數已由 StyleManager 統一管理
 
 /**
  * p5.js 主要渲染迴圈
@@ -140,41 +135,37 @@ function mouseReleased() {
 
 /**
  * 處理鍵盤按下事件
- * 支援花朵風格切換和相機控制
+ * 支援花朵風格切換、輪播控制和相機控制
  */
 function keyPressed() {
   const cameraConfig = appConfig.getCameraConfig();
   
-  // 🎨 世界級美學配色切換鍵位（1-8 數字鍵）
-  if (key === '1') {
-    sceneManager.clearScene();
-    generateProvenceLavender();
-    console.log('🌿 普羅旺斯薰衣草田 - 法國印象派風情');
-  } else if (key === '2') {
-    sceneManager.clearScene();
-    generateNordicLavender();
-    console.log('🌙 北歐極光薰衣草園 - 冰島夢境');
-  } else if (key === '3') {
-    sceneManager.clearScene();
-    generateJapaneseLavender();
-    console.log('🌸 日式禪園薰衣草 - 東方美學');
-  } else if (key === '4') {
-    sceneManager.clearScene();
-    generateOceanicLavender();
-    console.log('🌊 海洋藝術薰衣草 - Turner風景');
-  } else if (key === '5') {
-    switchFlowerStyle('twilight');
-    console.log('🌆 暮光藍紫風格');
-  } else if (key === '6') {
-    switchFlowerStyle('gothic');
-    console.log('🖤 哥特暗黑風格');
-  } else if (key === '7') {
-    switchFlowerStyle('ink');
-    console.log('🖋️ 中國水墨風格');
-  } else if (key === '8') {
-    switchFlowerStyle('original');
-    console.log('🌺 經典彼岸花風格');
-  } else {
+  // 🎨 統一風格切換鍵位（1-8 數字鍵）
+  if (key >= '1' && key <= '8') {
+    const number = parseInt(key);
+    if (styleManager.switchByNumber(number)) {
+      const info = styleManager.getCurrentStyleInfo();
+      console.log(`🎨 切換風格: ${info.displayName}`);
+    }
+  } 
+  // 空格鍵：暫停/恢復自動輪播
+  else if (key === ' ') {
+    styleManager.toggleRotation();
+    const info = styleManager.getCurrentStyleInfo();
+    console.log(`${info.isRotating ? '▶️ 恢復' : '⏸️ 暫停'}自動輪播`);
+  }
+  // 左右方向鍵：手動切換風格
+  else if (keyCode === LEFT_ARROW) {
+    styleManager.previousStyle();
+    const info = styleManager.getCurrentStyleInfo();
+    console.log(`⬅️ 上一個風格: ${info.displayName}`);
+  }
+  else if (keyCode === RIGHT_ARROW) {
+    styleManager.nextStyle();
+    const info = styleManager.getCurrentStyleInfo();
+    console.log(`➡️ 下一個風格: ${info.displayName}`);
+  }
+  else {
     // 其他鍵位交由控制系統處理
     controls.handleKeyPressed({ fov: cameraConfig.fov });
   }

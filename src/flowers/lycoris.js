@@ -293,6 +293,11 @@ class FlowerBrushManager {
 // 全域畫刷管理器實例
 let brushManager = new FlowerBrushManager();
 
+// 將 FlowerBrushManager 暴露到全域作用域供 StyleManager 使用（用不同名稱避免衝突）
+if (typeof window !== 'undefined') {
+  window.LycorisBrushManager = FlowerBrushManager;
+}
+
 // 【入口函數】主要花朵生成函數 - 支援動態風格配置
 // 這是生成植物的起始點，從這裡開始整個生成流程
 function generateFlowers(options = {}) {

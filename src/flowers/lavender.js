@@ -895,3 +895,7 @@ if (typeof module !== 'undefined' && module.exports) {
     FLOWER_STYLES,
   };
 }
+
+if (typeof window !== 'undefined') {
+  window.FlowerBrushManager = FlowerBrushManager;
+}
