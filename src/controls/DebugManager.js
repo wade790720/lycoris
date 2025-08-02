@@ -4,12 +4,33 @@ class DebugManager {
     this.autoControl = true;
   }
 
-  preRender(layerSystem, mainGraphics) {
+  setEnabled(enabled) {
+    this.isEnabled = enabled;
+  }
+
+  toggleEnabled() {
+    this.isEnabled = !this.isEnabled;
+    return this.isEnabled;
+  }
+
+  preRender(layerSystem, mainGraphics, sceneState = {}) {
     if (!this.isEnabled) return;
     
     layerSystem.clearAllLayer();
     mainGraphics.clear();
-    Graphics3D.drawAxes();
+    
+    // 從場景狀態中取得角度和相機資訊
+    const angles = sceneState.angles || { angleX: 0, angleY: 0, angleZ: 0 };
+    const camera = sceneState.camera || { position: createVector(0, 0, -200), fov: 1000, zoom: 1 };
+    
+    Graphics3D.drawAxes(
+      angles.angleX, 
+      angles.angleY, 
+      angles.angleZ, 
+      camera.position, 
+      camera.fov, 
+      camera.zoom
+    );
   }
 
   updateSceneState(state) {
@@ -18,18 +39,18 @@ class DebugManager {
     if (this.autoControl) {
       return {
         angles: {
-          x: PI / 4,
-          y: frameCount / 100,
-          z: sin(state.angles.y) / 5
+          angleX: PI / 4,
+          angleY: frameCount / 100,
+          angleZ: sin(state.angles.angleY) / 5
         }
       };
     }
     
     return {
       angles: {
-        x: PI / 8,
-        y: state.angles.y,
-        z: state.angles.z
+        angleX: PI / 8,
+        angleY: state.angles.angleY,
+        angleZ: state.angles.angleZ
       }
     };
   }

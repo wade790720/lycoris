@@ -10,11 +10,8 @@ class SceneManager {
     this.angleX = 0;
     this.angleY = 0; 
     this.angleZ = 0;
-    // 相機位置和目標位置
+    // 相機位置
     this.cameraPosition = null;
-    this.targetPosition = null;
-    // 自動控制模式
-    this.autoControl = true;
   }
 
   /**
@@ -23,7 +20,6 @@ class SceneManager {
   initialize() {
     // 設定初始相機位置（往後退 200 單位）
     this.cameraPosition = createVector(0, 0, -200);
-    this.targetPosition = createVector(0, 0, 0);
     
     // 根據螢幕中心計算初始旋轉角度
     const center = { x: width / 2, y: height / 2 };
@@ -34,8 +30,7 @@ class SceneManager {
 
   updateSceneState(debugManager) {
     const sceneState = {
-      angles: { angleX: this.angleX, angleY: this.angleY, angleZ: this.angleZ },
-      autoControl: this.autoControl
+      angles: { angleX: this.angleX, angleY: this.angleY, angleZ: this.angleZ }
     };
     
     const updatedState = debugManager.updateSceneState(sceneState);
@@ -99,7 +94,7 @@ class SceneManager {
    * 包括層級系統、混合效果和紋理叠加
    */
   applyPostProcessing(mainGraphics, layerSystem, overAllTexture) {
-    // 第一階段：基本渲柕和層級系統
+    // 第一階段：基本渲染和層級系統
     push();
     drawingContext.globalAlpha = 1;
     background(0);
@@ -163,8 +158,7 @@ class SceneManager {
 
   getCameraInfo() {
     return {
-      position: this.cameraPosition,
-      target: this.targetPosition
+      position: this.cameraPosition
     };
   }
 }

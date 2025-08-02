@@ -38,6 +38,8 @@ function setup() {
  */
 function initializeApplication() {
   debugManager = new DebugManager();
+  // 同步 AppConfig 的 debug 狀態到 DebugManager
+  debugManager.setEnabled(appConfig.debug);
   sceneManager = new SceneManager();
   
   // 根據頁面類型初始化對應的風格管理器
@@ -86,8 +88,17 @@ function initializeScene() {
 function draw() {
   const cameraConfig = appConfig.getCameraConfig();
 
-  // 除錯管理器預處理
-  debugManager.preRender(layerSystem, mainGraphics);
+  // 除錯管理器預處理 - 傳遞場景狀態
+  const angles = sceneManager.getAngles();
+  const cameraInfo = sceneManager.getCameraInfo();
+  debugManager.preRender(layerSystem, mainGraphics, {
+    angles: angles,
+    camera: { 
+      position: cameraInfo.position, 
+      fov: cameraConfig.fov, 
+      zoom: cameraConfig.zoom 
+    }
+  });
 
   // 設定縪圖坐標系統
   mainGraphics.push();
@@ -164,6 +175,12 @@ function keyPressed() {
     styleManager.nextStyle();
     const info = styleManager.getCurrentStyleInfo();
     console.log(`➡️ 下一個風格: ${info.displayName}`);
+  }
+  // d 鍵：切換 Debug 模式
+  else if (key === 'd' || key === 'D') {
+    const newDebugState = appConfig.toggleDebug();
+    debugManager.setEnabled(newDebugState);
+    console.log(`🔧 Debug 模式: ${newDebugState ? '開啟' : '關閉'}`);
   }
   else {
     // 其他鍵位交由控制系統處理

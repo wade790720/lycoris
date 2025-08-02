@@ -5,17 +5,12 @@
 class AppConfig {
   constructor() {
     this.fov = 1000; // 3D 相機視野參數
-    this.sphereRadius = 400; // 粒子系統的球體半徑
     this.colors = "cfdbd5-e8eddf-f5cb5c-242423-333533-d8a47f-ef8354-ee4b6a-df3b57-0f7173" // 調色盤：預設顏色配色方案
       .split("-")
       .map(a => "#" + a);
     
-    this.zoom = 2.4; // 相機縮放倍數
-    this.isDragging = true; // 滑鼠互動狀態追蹤
-    this.isPanning = false;
-    this.previousMouseX = 0;
-    this.previousMouseY = 0;
-    this.debug = true; // 除錯模式開關
+    this.zoom = 3.4; // 相機縮放倍數
+    this.debug = false; // 除錯模式開關
   }
 
   /**
@@ -52,28 +47,5 @@ class AppConfig {
   toggleDebug() {
     this.debug = !this.debug;
     return this.debug;
-  }
-
-  /**
-   * 設定滑鼠互動狀態
-   * @param {boolean} isDragging - 是否正在拖拽
-   * @param {boolean} isPanning - 是否正在平移
-   * @param {number} mouseX - 滑鼠 X 座標
-   * @param {number} mouseY - 滑鼠 Y 座標
-   */
-  setMouseState(isDragging, isPanning, mouseX = 0, mouseY = 0) {
-    this.isDragging = isDragging;
-    this.isPanning = isPanning;
-    this.previousMouseX = mouseX;
-    this.previousMouseY = mouseY;
-  }
-
-  getMouseState() {
-    return {
-      isDragging: this.isDragging,
-      isPanning: this.isPanning,
-      previousMouseX: this.previousMouseX,
-      previousMouseY: this.previousMouseY
-    };
   }
 }
