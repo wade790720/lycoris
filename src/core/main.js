@@ -130,6 +130,12 @@ function windowResized() {
     brushSystem.clear();
   }
   
+  // 清理圖層系統
+  if (layerSystem) {
+    layerSystem.dispose();
+    layerSystem = new LayerSystem(12, appConfig.debug);
+  }
+  
   // 重新調整畫布大小
   const canvasConfig = appConfig.getCanvasConfig();
   resizeCanvas(canvasConfig.width, canvasConfig.height);
@@ -148,7 +154,14 @@ window.addEventListener('beforeunload', () => {
   if (brushSystem) {
     brushSystem.dispose();
   }
+  if (layerSystem) {
+    layerSystem.dispose();
+  }
   if (mainGraphics) {
     mainGraphics.remove();
+  }
+  // 清理風格管理器的定時器
+  if (window.styleManager && typeof window.styleManager.stopAutoRotation === 'function') {
+    window.styleManager.stopAutoRotation();
   }
 });

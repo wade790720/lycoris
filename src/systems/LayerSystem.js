@@ -20,8 +20,17 @@ class Layer {
 
     this.graphics.translate(width / 2, height / 2) //圖層預設0,0都設定為中央
   }
+  
   clear() {
     this.graphics.clear()
+  }
+
+  // 釋放圖層資源
+  dispose() {
+    if (this.graphics) {
+      this.graphics.remove();
+      this.graphics = null;
+    }
   }
 
   // 更新圖層位置
@@ -70,6 +79,12 @@ class LayerSystem {
 
   clearAllLayer() {
     this.layers.forEach(layer => layer.clear())
+  }
+
+  // 釋放所有圖層資源
+  dispose() {
+    this.layers.forEach(layer => layer.dispose());
+    this.layers = [];
   }
 
   // 根據 z-index 排序圖層

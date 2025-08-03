@@ -68,9 +68,22 @@ if (typeof LycorisStyleManager !== 'undefined') {
   }
 }
 
-// 預設風格配置
-const FLOWER_STYLES = {
-  default: {
+// 獲取 Lycoris 風格配置的函數
+function getLycorisStyleConfig(styleName = 'original') {
+  // 嘗試從 LycorisStyleManager 獲取配置
+  if (typeof window !== 'undefined' && window.LycorisStyleManager) {
+    const styleManager = new window.LycorisStyleManager();
+    const styles = styleManager.styles;
+    return styles[styleName]?.config || styles.original?.config;
+  }
+  
+  // 如果沒有 StyleManager，使用預設配置
+  return getDefaultLycorisConfig();
+}
+
+// 預設 Lycoris 配置（備用）
+function getDefaultLycorisConfig() {
+  return {
     green: {
       count: 10,
       settings: {
@@ -99,70 +112,6 @@ const FLOWER_STYLES = {
     black: {
       count: 5,
       settings: {
-        brushColor: () => color(random(0, 10), random(0, 20), random(0, 30)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(10, 500),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.2,
-        brushCanvasSize: 200,
-        brushTimeFactor: 0.1
-      }
-    },
-    red: {
-      count: 5,
-      settings: {
-        brushColor: () => color(random(340, 390) % 360, random(90, 98), random(80, 100)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(10, 50),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.25,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    },
-    yellow: {
-      count: 5,
-      settings: {
-        brushColor: () => color(random(35, 50), random(90, 98), random(80, 95)),
-        brushAlpha: 1,
-        brushNoiseScale: 20,
-        brushColorVariant: 0.3,
-        aspectRatio: 0.2,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    }
-  },
-  gothic: {
-    green: {
-      count: 10,
-      settings: {
-        // 深紫色莖部
-        brushColor: () => color(random(280, 300), random(60, 80), random(25, 45)),
-        brushAlpha: 1,
-        brushNoiseScale: () => random(10, 300),
-        brushColorVariant: 0.6,
-        brushCanvasSize: 200,
-        aspectRatio: 0.2
-      }
-    },
-    white: {
-      count: 5,
-      settings: {
-        // 暗金色花蕊
-        brushColor: () => color(random(40, 50), random(70, 85), random(40, 60)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(10, 500),
-        brushColorVariant: 0.5,
-        aspectRatio: 0.3,
-        brushCanvasSize: 200,
-        brushTimeFactor: 0.1
-      }
-    },
-    black: {
-      count: 5,
-      settings: {
-        // 深紅近黑花瓣 (用於混合)
         brushColor: () => color(random(350, 10), random(80, 95), random(10, 25)),
         brushAlpha: 0.9,
         brushNoiseScale: () => random(10, 500),
@@ -173,103 +122,23 @@ const FLOWER_STYLES = {
       }
     },
     red: {
-      count: 5,
-      settings: {
-        // 深紅近黑花瓣
-        brushColor: () => color(random(350, 10), random(80, 95), random(15, 35)),
-        brushAlpha: 0.9,
-        brushNoiseScale: () => random(10, 50),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.25,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    },
-    yellow: {
-      count: 5,
-      settings: {
-        // 深橙色花心
-        brushColor: () => color(random(20, 35), random(85, 95), random(50, 70)),
-        brushAlpha: 1,
-        brushNoiseScale: 20,
-        brushColorVariant: 0.4,
-        aspectRatio: 0.2,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.1
-      }
-    }
-  },
-  ink: {
-    green: {
-      count: 8,
-      settings: {
-        // 墨綠竹韻 - 水墨畫風格
-        brushColor: () => color(random(120, 140), random(20, 40), random(15, 35)),
-        brushAlpha: 0.6,
-        brushNoiseScale: () => random(100, 400),
-        brushColorVariant: 0.3,
-        brushCanvasSize: 200,
-        aspectRatio: 0.06
-      }
-    },
-    white: {
-      count: 12,
-      settings: {
-        // 宣紙白 - 留白美學
-        brushColor: () => color(random(30, 50), random(5, 15), random(92, 100)),
-        brushAlpha: 0.4,
-        brushNoiseScale: () => random(150, 600),
-        brushColorVariant: 0.2,
-        aspectRatio: 0.6,
-        brushCanvasSize: 300,
-        brushTimeFactor: 0.02
-      }
-    },
-    black: {
       count: 15,
       settings: {
-        // 濃墨重彩 - 水墨精髓
-        brushColor: () => color(random(0, 20), random(10, 30), random(5, 25)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(80, 500),
-        brushColorVariant: 0.4,
-        aspectRatio: 0.2,
-        brushCanvasSize: 350,
-        brushTimeFactor: 0.03
-      }
-    },
-    red: {
-      count: 4,
-      settings: {
-        // 朱砂印 - 傳統印章色
-        brushColor: () => color(random(5, 15), random(70, 90), random(50, 70)),
-        brushAlpha: 0.7,
-        brushNoiseScale: () => random(40, 200),
-        brushColorVariant: 0.5,
-        aspectRatio: 0.15,
+        brushColor: () => color(random(350, 10), random(80, 95), random(35, 75)),
+        brushAlpha: 0.85,
+        brushNoiseScale: () => random(10, 300),
+        brushColorVariant: 0.7,
+        aspectRatio: 0.4,
         brushCanvasSize: 180,
-        brushTimeFactor: 0.05
-      }
-    },
-    yellow: {
-      count: 6,
-      settings: {
-        // 淺墨灰 - 山水意境
-        brushColor: () => color(random(0, 30), random(8, 20), random(60, 80)),
-        brushAlpha: 0.5,
-        brushNoiseScale: 30,
-        brushColorVariant: 0.3,
-        aspectRatio: 0.18,
-        brushCanvasSize: 220,
-        brushTimeFactor: 0.02
+        brushTimeFactor: 0.08
       }
     }
-  }
-};
+  };
+}
 
 // 花朵繪製相關的畫刷管理器
 class FlowerBrushManager {
-  constructor(styleConfig = FLOWER_STYLES.default) {
+  constructor(styleConfig = getLycorisStyleConfig('original')) {
     this.brushes = {};
     this.mixedBrushes = {};
     this.brushConfigs = styleConfig;
@@ -355,7 +224,7 @@ function generateFlowers(options = {}) {
   colorMode(HSB);               // 設定為HSB色彩模式(色相/飽和度/亮度)
 
   // 【步驟1】初始化畫刷系統 - 根據選定風格準備所有繪圖工具
-  const styleConfig = customStyle || FLOWER_STYLES[style] || FLOWER_STYLES.default;
+  const styleConfig = customStyle || getLycorisStyleConfig(style);
   brushManager.updateStyle(styleConfig);    // 更新風格配置
   brushManager.initializeAllBrushes();      // 生成各種顏色的畫刷集合
 
@@ -676,6 +545,6 @@ if (typeof module !== 'undefined' && module.exports) {
     generateGothicFlowers,
     generateInkFlowers,
     FlowerBrushManager,
-    FLOWER_STYLES
+    getLycorisStyleConfig
   };
 }

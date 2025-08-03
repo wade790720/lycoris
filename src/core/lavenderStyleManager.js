@@ -79,7 +79,7 @@ const LAVENDER_STYLES = {
       green: {
         count: 6,
         settings: {
-          brushColor: () => color(240, random(80, 90), random(15, 20)),
+          brushColor: () => color(random(140, 160), random(35, 55), random(20, 35)),
           brushAlpha: 1,
           brushNoiseScale: () => random(30, 150),
           brushColorVariant: 0.4,

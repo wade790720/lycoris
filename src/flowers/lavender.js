@@ -68,13 +68,25 @@ if (typeof LavenderStyleManager !== 'undefined') {
   }
 }
 
-// 🎨 世界級美學配色系統 - 融合國際頂級藝術作品的配色理論
-const FLOWER_STYLES = {
-  default: {
+// 獲取 Lavender 風格配置的函數
+function getLavenderStyleConfig(styleName = 'default') {
+  // 嘗試從 LavenderStyleManager 獲取配置
+  if (typeof window !== 'undefined' && window.LavenderStyleManager) {
+    const styleManager = new window.LavenderStyleManager();
+    const styles = styleManager.styles;
+    return styles[styleName]?.config || styles.default?.config;
+  }
+  
+  // 如果沒有 StyleManager，使用預設配置
+  return getDefaultLavenderConfig();
+}
+
+// 預設 Lavender 配置（備用）
+function getDefaultLavenderConfig() {
+  return {
     green: {
       count: 6,
       settings: {
-        // 深綠色莖部 - 參考卡芙卡服裝的深色基調
         brushColor: () => color(random(140, 160), random(35, 55), random(20, 35)),
         brushAlpha: 1,
         brushNoiseScale: () => random(30, 150),
@@ -83,7 +95,6 @@ const FLOWER_STYLES = {
         aspectRatio: 0.12
       }
     },
-    // 主要花穗顏色 - 漸層中段（經典薰衣草）
     purple: {
       count: 8,
       settings: {
@@ -99,325 +110,33 @@ const FLOWER_STYLES = {
     black: {
       count: 5,
       settings: {
-        // 深紅近黑花瓣 (用於混合)
-        brushColor: () => color(random(350, 10), random(80, 95), random(10, 25)),
-        brushAlpha: 0.9,
-        brushNoiseScale: () => random(10, 500),
-        brushColorVariant: 0.8,
-        aspectRatio: 0.2,
-        brushCanvasSize: 200,
-        brushTimeFactor: 0.1
+        brushColor: () => color(random(0, 30), random(90, 100), random(5, 25)),
+        brushAlpha: 1,
+        brushNoiseScale: () => random(15, 200),
+        brushColorVariant: 0.5,
+        brushCanvasSize: 180,
+        aspectRatio: 0.09,
+        brushTimeFactor: 0.15
       }
     },
-    // 微白色花穗 - 低調的淡白點綴
     white: {
-      count: 2,  // 🎨 調整這個數字來控制白色花瓣數量 (建議: 1-20)
+      count: 2,
       settings: {
-        // 畫筆顏色 - 設定花朵的基本顏色 (色相, 飽和度, 亮度)
         brushColor: () => color(random(0, 10), random(0, 20), random(90, 100)),
-        
-        // 畫筆透明度 - 控制花朵的透明程度 (0.0=完全透明, 1.0=完全不透明)
         brushAlpha: 0.3,
-        
-        // 筆刷噪聲縮放 - 控制筆觸的粗糙程度/紋理細節 (數值越大越粗糙)
         brushNoiseScale: () => random(100, 500),
-        
-        // 顏色變化幅度 - 控制每朵花顏色的隨機變化程度 (0.0=無變化, 1.0=最大變化)
         brushColorVariant: 0.5,
-        
-        // 長寬比 - 控制花瓣的形狀比例 (數值越小越細長, 越大越圓)
         aspectRatio: 0.7,
-        
-        // 畫筆畫布大小 - 控制單個花瓣的大小 (數值越大花瓣越大)
         brushCanvasSize: 50,
-        
-        // 時間因子 - 控制花朵綻放的速度 (數值越大綻放越快)
         brushTimeFactor: 0.1
       }
     }
-  },
-  // 暮光藍紫色系風格 - 深靛藍與灰藍色調
-  twilight: {
-    green: {
-      count: 6,
-      settings: {
-        // 深靛藍色莖部 - 沉靜的背景氛圍
-        brushColor: () => color(240, random(80, 90), random(15, 20)), // #1e1e2b 深靛藍
-        brushAlpha: 1,
-        brushNoiseScale: () => random(30, 150),
-        brushColorVariant: 0.4,
-        brushCanvasSize: 160,
-        aspectRatio: 0.12
-      }
-    },
-    // 主要花穗顏色 - 柔和紫灰
-    purple: {
-      count: 15,
-      settings: {
-        // 柔和紫灰色 - 樹梢柔光
-        brushColor: () => color(240, random(30, 45), random(75, 85)), // #b0b0cb 柔和紫灰
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(15, 80),
-        brushColorVariant: 0.35,
-        aspectRatio: 0.28,
-        brushCanvasSize: 125,
-        brushTimeFactor: 0.06
-      }
-    },
-    // 灰藍色花穗 - 樹蔭氛圍
-    darkPurple: {
-      count: 10,
-      settings: {
-        // 灰藍色 - 樹蔭中的沉靜氛圍
-        brushColor: () => color(230, random(40, 55), random(25, 35)), // #2f2f46 灰藍
-        brushAlpha: 0.75,
-        brushNoiseScale: () => random(10, 60),
-        brushColorVariant: 0.4,
-        aspectRatio: 0.22,
-        brushCanvasSize: 110,
-        brushTimeFactor: 0.08
-      }
-    },
-    // 淡藍紫色花穗 - 光斑中的紫光
-    lightPurple: {
-      count: 12,
-      settings: {
-        // 淡藍紫色 - 光斑中柔和的紫光
-        brushColor: () => color(240, random(25, 40), random(60, 75)), // #8383a4 淡藍
-        brushAlpha: 0.65,
-        brushNoiseScale: () => random(20, 100),
-        brushColorVariant: 0.3,
-        aspectRatio: 0.32,
-        brushCanvasSize: 140,
-        brushTimeFactor: 0.05
-      }
-    },
-    // 藍紫色花穗 - 中景層次
-    white: {
-      count: 8,
-      settings: {
-        // 較深的藍紫色 - 中景層次與陰影過渡
-        brushColor: () => color(245, random(45, 60), random(40, 50)), // #434369 較深藍紫
-        brushAlpha: 0.7,
-        brushNoiseScale: () => random(30, 150),
-        brushColorVariant: 0.2,
-        aspectRatio: 0.35,
-        brushCanvasSize: 130,
-        brushTimeFactor: 0.04
-      }
-    }
-  },
-  
-  // 🎨 世界級美學配色新增風格
-  
-  // 🌿 普羅旺斯印象派風格 - 莫內《睡蓮》色彩感受
-  provence: {
-    green: {
-      count: 8,
-      settings: {
-        brushColor: () => color(random(135, 155), random(60, 75), random(25, 40)),
-        brushAlpha: 1,
-        brushNoiseScale: () => random(35, 160),
-        brushColorVariant: 0.35,
-        brushCanvasSize: 165,
-        aspectRatio: 0.12
-      }
-    },
-    purple: {
-      count: 18,
-      settings: {
-        brushColor: () => color(random(270, 285), random(55, 75), random(45, 70)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(15, 80),
-        brushColorVariant: 0.4,
-        aspectRatio: 0.5,
-        brushCanvasSize: 125,
-        brushTimeFactor: 0.08
-      }
-    },
-    shadow: {
-      count: 10,
-      settings: {
-        brushColor: () => color(random(250, 270), random(80, 95), random(12, 28)),
-        brushAlpha: 0.65,
-        brushNoiseScale: () => random(40, 200),
-        brushColorVariant: 0.5,
-        aspectRatio: 0.25,
-        brushCanvasSize: 145,
-        brushTimeFactor: 0.1
-      }
-    },
-    white: {
-      count: 8,
-      settings: {
-        brushColor: () => color(random(0, 20), random(0, 15), random(88, 100)),
-        brushAlpha: 0.45,
-        brushNoiseScale: () => random(60, 300),
-        brushColorVariant: 0.2,
-        aspectRatio: 0.85,
-        brushCanvasSize: 70,
-        brushTimeFactor: 0.06
-      }
-    }
-  },
-  
-  // 🌙 北歐極光風格 - 冰島薰衣草夢境
-  nordic: {
-    green: {
-      count: 6,
-      settings: {
-        brushColor: () => color(random(180, 200), random(40, 60), random(30, 45)),
-        brushAlpha: 0.9,
-        brushNoiseScale: () => random(25, 120),
-        brushColorVariant: 0.3,
-        brushCanvasSize: 150,
-        aspectRatio: 0.15
-      }
-    },
-    purple: {
-      count: 22,
-      settings: {
-        brushColor: () => color(random(260, 280), random(70, 85), random(50, 75)),
-        brushAlpha: 0.85,
-        brushNoiseScale: () => random(10, 60),
-        brushColorVariant: 0.3,
-        aspectRatio: 0.45,
-        brushCanvasSize: 115,
-        brushTimeFactor: 0.07
-      }
-    },
-    lightBlue: {
-      count: 12,
-      settings: {
-        brushColor: () => color(random(200, 220), random(45, 65), random(75, 90)),
-        brushAlpha: 0.7,
-        brushNoiseScale: () => random(20, 100),
-        brushColorVariant: 0.25,
-        aspectRatio: 0.6,
-        brushCanvasSize: 100,
-        brushTimeFactor: 0.05
-      }
-    },
-    white: {
-      count: 10,
-      settings: {
-        brushColor: () => color(random(200, 240), random(20, 35), random(85, 100)),
-        brushAlpha: 0.5,
-        brushNoiseScale: () => random(80, 250),
-        brushColorVariant: 0.15,
-        aspectRatio: 0.9,
-        brushCanvasSize: 75,
-        brushTimeFactor: 0.04
-      }
-    }
-  },
-  
-  // 🌸 日式和風美學 - 櫻花與薰衣草的細膩融合
-  japanese: {
-    green: {
-      count: 7,
-      settings: {
-        brushColor: () => color(random(120, 140), random(65, 80), random(20, 35)),
-        brushAlpha: 0.95,
-        brushNoiseScale: () => random(40, 180),
-        brushColorVariant: 0.4,
-        brushCanvasSize: 140,
-        aspectRatio: 0.1
-      }
-    },
-    purple: {
-      count: 15,
-      settings: {
-        brushColor: () => color(random(285, 305), random(50, 70), random(45, 65)),
-        brushAlpha: 0.75,
-        brushNoiseScale: () => random(15, 90),
-        brushColorVariant: 0.35,
-        aspectRatio: 0.4,
-        brushCanvasSize: 105,
-        brushTimeFactor: 0.09
-      }
-    },
-    sakura: {
-      count: 18,
-      settings: {
-        brushColor: () => color(random(320, 340), random(35, 55), random(80, 95)),
-        brushAlpha: 0.6,
-        brushNoiseScale: () => random(25, 120),
-        brushColorVariant: 0.3,
-        aspectRatio: 0.7,
-        brushCanvasSize: 90,
-        brushTimeFactor: 0.06
-      }
-    },
-    gold: {
-      count: 5,
-      settings: {
-        brushColor: () => color(random(45, 60), random(80, 95), random(85, 100)),
-        brushAlpha: 0.4,
-        brushNoiseScale: () => random(100, 400),
-        brushColorVariant: 0.2,
-        aspectRatio: 0.95,
-        brushCanvasSize: 50,
-        brushTimeFactor: 0.03
-      }
-    }
-  },
-  
-  // 🌊 海洋藝術風格 - Turner《風雨汽船》的色彩感受
-  oceanic: {
-    green: {
-      count: 7,
-      settings: {
-        brushColor: () => color(random(160, 180), random(70, 85), random(25, 40)),
-        brushAlpha: 0.9,
-        brushNoiseScale: () => random(35, 160),
-        brushColorVariant: 0.45,
-        brushCanvasSize: 155,
-        aspectRatio: 0.12
-      }
-    },
-    deepBlue: {
-      count: 25,
-      settings: {
-        brushColor: () => color(random(210, 230), random(75, 90), random(35, 60)),
-        brushAlpha: 0.8,
-        brushNoiseScale: () => random(12, 70),
-        brushColorVariant: 0.35,
-        aspectRatio: 0.35,
-        brushCanvasSize: 130,
-        brushTimeFactor: 0.08
-      }
-    },
-    turquoise: {
-      count: 15,
-      settings: {
-        brushColor: () => color(random(170, 190), random(60, 80), random(65, 85)),
-        brushAlpha: 0.7,
-        brushNoiseScale: () => random(20, 110),
-        brushColorVariant: 0.3,
-        aspectRatio: 0.5,
-        brushCanvasSize: 105,
-        brushTimeFactor: 0.06
-      }
-    },
-    foam: {
-      count: 12,
-      settings: {
-        brushColor: () => color(random(180, 200), random(25, 40), random(90, 100)),
-        brushAlpha: 0.55,
-        brushNoiseScale: () => random(60, 300),
-        brushColorVariant: 0.2,
-        aspectRatio: 0.85,
-        brushCanvasSize: 80,
-        brushTimeFactor: 0.04
-      }
-    }
-  }
-};
+  };
+}
 
 // 花朵繪製相關的畫刷管理器
 class FlowerBrushManager {
-  constructor(styleConfig = FLOWER_STYLES.default) {
+  constructor(styleConfig = getLavenderStyleConfig('default')) {
     this.brushes = {};
     this.mixedBrushes = {};
     this.brushConfigs = styleConfig;
@@ -545,7 +264,7 @@ function generateFlowers(options = {}) {
   colorMode(HSB);               // 設定為HSB色彩模式(色相/飽和度/亮度)
 
   // 【步驟1】初始化畫刷系統 - 根據選定風格準備所有繪圖工具
-  const styleConfig = customStyle || FLOWER_STYLES[style] || FLOWER_STYLES.default;
+  const styleConfig = customStyle || getLavenderStyleConfig(style);
   brushManager.updateStyle(styleConfig);    // 更新風格配置
   brushManager.initializeAllBrushes();
 
@@ -936,7 +655,7 @@ if (typeof module !== 'undefined' && module.exports) {
     generateJapaneseLavender,
     generateOceanicLavender,
     FlowerBrushManager,
-    FLOWER_STYLES,
+    getLavenderStyleConfig,
   };
 }
 
