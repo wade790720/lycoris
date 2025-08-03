@@ -22,13 +22,17 @@ function preload() {
  * 設定畫布、初始化系統和場景
  */
 function setup() {
-  appConfig = new AppConfig();
+  console.log('[STARTUP] Application initialization started');
   
+  appConfig = new AppConfig();
   const canvasConfig = appConfig.getCanvasConfig();
+  
+  console.log('[STARTUP] Canvas configuration loaded:', canvasConfig.width + 'x' + canvasConfig.height);
 
   // 設定高像素密度和畫布大小
   pixelDensity(canvasConfig.pixelDensity);
   cnv = createCanvas(canvasConfig.width, canvasConfig.height);
+  console.log('[STARTUP] Canvas created successfully');
 
   initializeApplication();
 }
@@ -37,28 +41,52 @@ function setup() {
  * 初始化應用程式的核心系統
  */
 function initializeApplication() {
+  console.log('[STARTUP] Core systems initialization started');
+  
   debugManager = new DebugManager();
   debugManager.setEnabled(appConfig.debug);
+  console.log('[SYSTEM] DebugManager initialized, debug:', appConfig.debug);
+  
   sceneManager = new SceneManager();
+  console.log('[SYSTEM] SceneManager initialized');
   
   initializeSystems();
   initializeScene();
+  
+  console.log('[STARTUP] Application initialization completed');
 }
 
 function initializeSystems() {
+  console.log('[SYSTEM] Systems initialization started');
+  
   mainGraphics = createGraphics(width, height);
+  console.log('[SYSTEM] MainGraphics created:', width + 'x' + height);
+  
   controls = new Controls();
+  console.log('[SYSTEM] Controls system initialized');
+  
   brushSystem = new BrushSystem();
-  layerSystem = new LayerSystem(12, appConfig.debug); // 使用 AppConfig 的 debug 設定
+  console.log('[SYSTEM] BrushSystem initialized');
+  
+  layerSystem = new LayerSystem(12, appConfig.debug);
+  console.log('[SYSTEM] LayerSystem initialized with', 12, 'layers, debug:', appConfig.debug);
 }
 
 function initializeScene() {
+  console.log('[LIFECYCLE] Scene initialization started');
+  
   sceneManager.initialize();
+  console.log('[LIFECYCLE] SceneManager initialized');
   
   // 風格管理器的具體初始化由各頁面的 js 文件負責
   if (window.styleManager && typeof window.styleManager.initializeDefault === 'function') {
     window.styleManager.initializeDefault();
+    console.log('[LIFECYCLE] StyleManager initialized and default style applied');
+  } else {
+    console.warn('[ERROR] StyleManager not found or initializeDefault method missing');
   }
+  
+  console.log('[LIFECYCLE] Scene initialization completed');
 }
 
 // 原有的風格切換函數已由 StyleManager 統一管理
@@ -110,7 +138,7 @@ function keyPressed() {
   if (key === 'd' || key === 'D') {
     const newDebugState = appConfig.toggleDebug();
     debugManager.setEnabled(newDebugState);
-    console.log(`🔧 Debug 模式: ${newDebugState ? '開啟' : '關閉'}`);
+    console.log('[SYSTEM] Debug mode toggled:', newDebugState);
   }
   // 風格管理器鍵位處理（如果存在）
   else if (window.styleManager && typeof window.styleManager.handleKeyPressed === 'function') {

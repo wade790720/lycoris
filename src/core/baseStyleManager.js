@@ -34,8 +34,7 @@ class BaseStyleManager {
     // 畫刷管理器 (由子類別實現)
     this.brushManager = null;
     
-    console.log(`🎨 ${this.flowerType} 風格管理器初始化完成`);
-    console.log(`📝 可用風格: ${this.styleNames.join(', ')}`);
+    console.log('[SYSTEM] ' + this.flowerType + ' StyleManager initialized with styles:', this.styleNames.join(', '));
   }
   
   // 抽象方法：初始化畫刷管理器 (子類別必須實現)
@@ -51,7 +50,7 @@ class BaseStyleManager {
   // 核心方法：切換到指定風格
   switchToStyle(styleName, generateFlowers = true) {
     if (!this.styles[styleName]) {
-      console.warn(`⚠️ ${this.flowerType} 風格 "${styleName}" 不存在`);
+      console.warn('[ERROR] ' + this.flowerType + ' style "' + styleName + '" not found');
       return false;
     }
     
@@ -59,7 +58,7 @@ class BaseStyleManager {
     this.currentStyle = this.styles[styleName];
     this.currentStyleIndex = this.styleNames.indexOf(styleName);
     
-    console.log(`🎨 切換風格: ${this.currentStyle.name}`);
+    console.log('[LIFECYCLE] ' + this.flowerType + ' style switched to:', this.currentStyle.name);
     
     // 初始化畫刷管理器
     if (this.initializeBrushManager() && generateFlowers) {
@@ -84,7 +83,7 @@ class BaseStyleManager {
     }
     
     this.isRotating = true;
-    console.log(`🔄 開始 ${this.flowerType} 自動輪播 (每${this.rotationInterval/1000}秒切換)`);
+    console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation started, interval:', this.rotationInterval/1000 + 's');
     
     this.rotationTimer = setInterval(() => {
       this.nextStyle();
@@ -98,20 +97,20 @@ class BaseStyleManager {
       this.rotationTimer = null;
     }
     this.isRotating = false;
-    console.log(`⏹️ 停止 ${this.flowerType} 輪播`);
+    console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation stopped');
   }
   
   // 暫停輪播
   pauseRotation() {
     this.stopAutoRotation();
-    console.log(`⏸️ 暫停 ${this.flowerType} 輪播`);
+    console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation paused');
   }
   
   // 恢復輪播
   resumeRotation() {
     if (!this.isRotating) {
       this.startAutoRotation();
-      console.log(`▶️ 恢復 ${this.flowerType} 輪播`);
+      console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation resumed');
     }
   }
   
@@ -198,7 +197,7 @@ class BaseStyleManager {
   destroy() {
     this.stopAutoRotation();
     this.brushManager = null;
-    console.log(`🗑️ ${this.flowerType} 風格管理器已銷毀`);
+    console.log('[SYSTEM] ' + this.flowerType + ' StyleManager destroyed');
   }
 }
 

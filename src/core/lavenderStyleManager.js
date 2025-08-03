@@ -385,7 +385,7 @@ class LavenderStyleManager extends BaseStyleManager {
       this.brushManager.initializeAllBrushes();
       return true;
     } else {
-      console.warn('FlowerBrushManager 未找到，請確保 lavender.js 已載入');
+      console.warn('[ERROR] FlowerBrushManager 未找到，請確保 lavender.js 已載入');
       return false;
     }
   }

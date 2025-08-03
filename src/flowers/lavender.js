@@ -28,13 +28,13 @@
 if (typeof LavenderStyleManager !== 'undefined') {
   if (typeof styleManager === 'undefined' || !styleManager) {
     window.styleManager = new LavenderStyleManager();
-    console.log('🌿 載入 Lavender 風格管理器');
+    console.log('[SYSTEM] LavenderStyleManager loaded and registered');
     
     // 添加初始化方法
     window.styleManager.initializeDefault = function() {
       this.switchToStyle('default');
       this.startAutoRotation();
-      console.log('🌿 Lavender 風格管理器初始化完成');
+      console.log('[LIFECYCLE] LavenderStyleManager initialized with default style and auto-rotation enabled');
     };
     
     // 添加鍵盤事件處理方法
@@ -44,25 +44,25 @@ if (typeof LavenderStyleManager !== 'undefined') {
         const number = parseInt(key);
         if (this.switchByNumber(number)) {
           const info = this.getCurrentStyleInfo();
-          console.log(`🎨 切換風格: ${info.displayName}`);
+          console.log('[LIFECYCLE] Style switched by number key', number, ':', info.displayName);
         }
       } 
       // 空格鍵：暫停/恢復自動輪播
       else if (key === ' ') {
         this.toggleRotation();
         const info = this.getCurrentStyleInfo();
-        console.log(`${info.isRotating ? '▶️ 恢復' : '⏸️ 暫停'}自動輪播`);
+        console.log('[LIFECYCLE] Auto-rotation toggled:', info.isRotating ? 'resumed' : 'paused', '- current style:', info.displayName);
       }
       // 左右方向鍵：手動切換風格
       else if (keyCode === LEFT_ARROW) {
         this.previousStyle();
         const info = this.getCurrentStyleInfo();
-        console.log(`⬅️ 上一個風格: ${info.displayName}`);
+        console.log('[LIFECYCLE] Style switched to previous:', info.displayName);
       }
       else if (keyCode === RIGHT_ARROW) {
         this.nextStyle();
         const info = this.getCurrentStyleInfo();
-        console.log(`➡️ 下一個風格: ${info.displayName}`);
+        console.log('[LIFECYCLE] Style switched to next:', info.displayName);
       }
     };
   }
@@ -309,7 +309,7 @@ function generateFlowers(options = {}) {
     });
   } else {
     // 散佈模式：使用斐波那契螺旋分布
-    console.log("斐波那契螺旋散佈模式");
+    console.log('[RENDER] Using Fibonacci spiral distribution pattern');
     Array.from({ length: flowerCount }).forEach((_, i) => {
       const angle = i * 2.399; // 黃金角
       const radius = sqrt(i) * 25;
@@ -476,7 +476,7 @@ class FlowerStemGenerator {
 class FlowerGenerator {
   // 【步驟5.1】生成花朵的主要函數 - 花莖生長完成後的回調函數
   generateFlower(stemParticle) {
-    console.log(stemParticle);
+    // Debug: stemParticle data available here
 
     // 計算花朵的基本幾何參數(大小、方向、花瓣數量等)
     const flowerParams = this._calculateFlowerParameters(stemParticle);

@@ -243,7 +243,7 @@ class LycorisStyleManager extends BaseStyleManager {
       this.brushManager.initializeAllBrushes();
       return true;
     } else {
-      console.warn('LycorisBrushManager 未找到，請確保 lycoris.js 已載入');
+      console.warn('[ERROR] LycorisBrushManager 未找到，請確保 lycoris.js 已載入');
       return false;
     }
   }
