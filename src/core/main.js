@@ -7,7 +7,7 @@ let controls;          // 互動控制
 let debugManager;      // 除錯管理器
 let sceneManager;      // 場景管理器
 let appConfig;         // 應用程式配置
-let styleManager;      // 統一風格管理器
+// styleManager 統一風格管理器 - 由各頁面 js 文件初始化
 
 /**
  * p5.js 預載函數
@@ -41,20 +41,6 @@ function initializeApplication() {
   debugManager.setEnabled(appConfig.debug);
   sceneManager = new SceneManager();
   
-  // 根據頁面類型初始化對應的風格管理器
-  if (typeof LycorisStyleManager !== 'undefined') {
-    // index.html - 使用 Lycoris 風格管理器
-    styleManager = new LycorisStyleManager();
-    console.log('🌺 載入 Lycoris 風格管理器');
-  } else if (typeof LavenderStyleManager !== 'undefined') {
-    // lavender.html - 使用 Lavender 風格管理器  
-    styleManager = new LavenderStyleManager();
-    console.log('🌿 載入 Lavender 風格管理器');
-  } else {
-    console.error('❌ 找不到對應的風格管理器');
-    return;
-  }
-
   initializeSystems();
   initializeScene();
 }
@@ -69,12 +55,9 @@ function initializeSystems() {
 function initializeScene() {
   sceneManager.initialize();
   
-  // 根據風格管理器類型初始化預設風格
-  if (styleManager) {
-    // 根據管理器類型決定預設風格
-    const defaultStyle = styleManager.constructor.name === 'LycorisStyleManager' ? 'original' : 'default';
-    styleManager.switchToStyle(defaultStyle);
-    styleManager.startAutoRotation();
+  // 風格管理器的具體初始化由各頁面的 js 文件負責
+  if (window.styleManager && typeof window.styleManager.initializeDefault === 'function') {
+    window.styleManager.initializeDefault();
   }
 }
 
@@ -116,73 +99,56 @@ function draw() {
   });
 }
 
-
-function mouseWheel(event) {
-  const cameraConfig = appConfig.getCameraConfig();
-  controls.handleMouseWheel(event, { zoom: cameraConfig.zoom });
-}
-
-function mouseDragged() {
-  const cameraConfig = appConfig.getCameraConfig();
-  const cameraInfo = sceneManager.getCameraInfo();
-  const angles = sceneManager.getAngles();
-
-  controls.handleMouseDragged({
-    fov: cameraConfig.fov,
-    cameraPosition: cameraInfo.position,
-    angleX: angles.angleX,
-    angleY: angles.angleY
-  });
-}
-
-function mousePressed() {
-  controls.handleMousePressed();
-}
-
-function mouseReleased() {
-  controls.handleMouseReleased();
-}
-
 /**
  * 處理鍵盤按下事件
- * 支援花朵風格切換、輪播控制和相機控制
+ * 核心系統鍵位處理
  */
 function keyPressed() {
   const cameraConfig = appConfig.getCameraConfig();
   
-  // 🎨 統一風格切換鍵位（1-8 數字鍵）
-  if (key >= '1' && key <= '8') {
-    const number = parseInt(key);
-    if (styleManager.switchByNumber(number)) {
-      const info = styleManager.getCurrentStyleInfo();
-      console.log(`🎨 切換風格: ${info.displayName}`);
-    }
-  } 
-  // 空格鍵：暫停/恢復自動輪播
-  else if (key === ' ') {
-    styleManager.toggleRotation();
-    const info = styleManager.getCurrentStyleInfo();
-    console.log(`${info.isRotating ? '▶️ 恢復' : '⏸️ 暫停'}自動輪播`);
-  }
-  // 左右方向鍵：手動切換風格
-  else if (keyCode === LEFT_ARROW) {
-    styleManager.previousStyle();
-    const info = styleManager.getCurrentStyleInfo();
-    console.log(`⬅️ 上一個風格: ${info.displayName}`);
-  }
-  else if (keyCode === RIGHT_ARROW) {
-    styleManager.nextStyle();
-    const info = styleManager.getCurrentStyleInfo();
-    console.log(`➡️ 下一個風格: ${info.displayName}`);
-  }
   // d 鍵：切換 Debug 模式
-  else if (key === 'd' || key === 'D') {
+  if (key === 'd' || key === 'D') {
     const newDebugState = appConfig.toggleDebug();
     debugManager.setEnabled(newDebugState);
     console.log(`🔧 Debug 模式: ${newDebugState ? '開啟' : '關閉'}`);
   }
-  else {
-    // 其他鍵位交由控制系統處理
-    controls.handleKeyPressed({ fov: cameraConfig.fov });
+  // 風格管理器鍵位處理（如果存在）
+  else if (window.styleManager && typeof window.styleManager.handleKeyPressed === 'function') {
+    window.styleManager.handleKeyPressed(key, keyCode);
+  }
+  
+  // 控制系統鍵位處理（包含存檔功能）
+  controls.handleKeyPressed({ fov: cameraConfig.fov });
+}
+
+/**
+ * 處理視窗大小變更
+ */
+function windowResized() {
+  // 清理舊的 canvas 資源
+  if (brushSystem) {
+    brushSystem.clear();
+  }
+  
+  // 重新調整畫布大小
+  const canvasConfig = appConfig.getCanvasConfig();
+  resizeCanvas(canvasConfig.width, canvasConfig.height);
+  
+  // 重新初始化主要圖形層
+  if (mainGraphics) {
+    mainGraphics.remove();
+    mainGraphics = createGraphics(width, height);
   }
 }
+
+/**
+ * 頁面卸載時清理資源
+ */
+window.addEventListener('beforeunload', () => {
+  if (brushSystem) {
+    brushSystem.dispose();
+  }
+  if (mainGraphics) {
+    mainGraphics.remove();
+  }
+});

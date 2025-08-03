@@ -24,6 +24,50 @@
 - generateInkFlowers() // 中國水墨風格
 */
 
+// 初始化 Lycoris 風格管理器 (僅在 index.html 中使用)
+if (typeof LycorisStyleManager !== 'undefined') {
+  if (typeof styleManager === 'undefined' || !styleManager) {
+    window.styleManager = new LycorisStyleManager();
+    console.log('🌺 載入 Lycoris 風格管理器');
+    
+    // 添加初始化方法
+    window.styleManager.initializeDefault = function() {
+      this.switchToStyle('original');
+      this.startAutoRotation();
+      console.log('🌺 Lycoris 風格管理器初始化完成');
+    };
+    
+    // 添加鍵盤事件處理方法
+    window.styleManager.handleKeyPressed = function(key, keyCode) {
+      // 🎨 統一風格切換鍵位（1-8 數字鍵）
+      if (key >= '1' && key <= '8') {
+        const number = parseInt(key);
+        if (this.switchByNumber(number)) {
+          const info = this.getCurrentStyleInfo();
+          console.log(`🎨 切換風格: ${info.displayName}`);
+        }
+      } 
+      // 空格鍵：暫停/恢復自動輪播
+      else if (key === ' ') {
+        this.toggleRotation();
+        const info = this.getCurrentStyleInfo();
+        console.log(`${info.isRotating ? '▶️ 恢復' : '⏸️ 暫停'}自動輪播`);
+      }
+      // 左右方向鍵：手動切換風格
+      else if (keyCode === LEFT_ARROW) {
+        this.previousStyle();
+        const info = this.getCurrentStyleInfo();
+        console.log(`⬅️ 上一個風格: ${info.displayName}`);
+      }
+      else if (keyCode === RIGHT_ARROW) {
+        this.nextStyle();
+        const info = this.getCurrentStyleInfo();
+        console.log(`➡️ 下一個風格: ${info.displayName}`);
+      }
+    };
+  }
+}
+
 // 預設風格配置
 const FLOWER_STYLES = {
   default: {

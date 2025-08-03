@@ -24,6 +24,50 @@
 - generateInkFlowers() // 中國水墨風格
 */
 
+// 初始化 Lavender 風格管理器 (僅在 lavender.html 中使用)
+if (typeof LavenderStyleManager !== 'undefined') {
+  if (typeof styleManager === 'undefined' || !styleManager) {
+    window.styleManager = new LavenderStyleManager();
+    console.log('🌿 載入 Lavender 風格管理器');
+    
+    // 添加初始化方法
+    window.styleManager.initializeDefault = function() {
+      this.switchToStyle('default');
+      this.startAutoRotation();
+      console.log('🌿 Lavender 風格管理器初始化完成');
+    };
+    
+    // 添加鍵盤事件處理方法
+    window.styleManager.handleKeyPressed = function(key, keyCode) {
+      // 🎨 統一風格切換鍵位（1-8 數字鍵）
+      if (key >= '1' && key <= '8') {
+        const number = parseInt(key);
+        if (this.switchByNumber(number)) {
+          const info = this.getCurrentStyleInfo();
+          console.log(`🎨 切換風格: ${info.displayName}`);
+        }
+      } 
+      // 空格鍵：暫停/恢復自動輪播
+      else if (key === ' ') {
+        this.toggleRotation();
+        const info = this.getCurrentStyleInfo();
+        console.log(`${info.isRotating ? '▶️ 恢復' : '⏸️ 暫停'}自動輪播`);
+      }
+      // 左右方向鍵：手動切換風格
+      else if (keyCode === LEFT_ARROW) {
+        this.previousStyle();
+        const info = this.getCurrentStyleInfo();
+        console.log(`⬅️ 上一個風格: ${info.displayName}`);
+      }
+      else if (keyCode === RIGHT_ARROW) {
+        this.nextStyle();
+        const info = this.getCurrentStyleInfo();
+        console.log(`➡️ 下一個風格: ${info.displayName}`);
+      }
+    };
+  }
+}
+
 // 🎨 世界級美學配色系統 - 融合國際頂級藝術作品的配色理論
 const FLOWER_STYLES = {
   default: {
