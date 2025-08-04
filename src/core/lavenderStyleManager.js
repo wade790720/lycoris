@@ -395,7 +395,7 @@ class LavenderStyleManager extends BaseStyleManager {
   generateCurrentStyleFlowers() {
     const options = {
       style: this.currentStyleName,
-      flowerCount: 5,
+      flowerCount: 40,
       position: { x: [-200, 200], y: [-30, 30], z: [-200, 200] }
     };
     

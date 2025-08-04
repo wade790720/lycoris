@@ -1,3 +1,4 @@
+// 圖層類 - 單一繪圖層管理
 class Layer {
   constructor(args = {}) {
     let def = {
@@ -10,19 +11,20 @@ class Layer {
       rotation: 0,
       scale: 1.02,
       speed: random(0.01, 0.05),
-      randomId: int(random(100000)), // 新增 randomId 屬性
-      noiseOffsetX: random(1000), // noise 偏移量
-      noiseOffsetY: random(1000),
-      noiseOffsetSize: random(1000) // 圓形大小的 noise 偏移量
+      randomId: int(random(100000)),
+      noiseOffsetX: random(1000),    // X軸噪音偏移
+      noiseOffsetY: random(1000),    // Y軸噪音偏移
+      noiseOffsetSize: random(1000)  // 尺寸噪音偏移
     };
     Object.assign(def, args);
     Object.assign(this, def);
 
-    this.graphics.translate(width / 2, height / 2) //圖層預設0,0都設定為中央
+    this.graphics.translate(width / 2, height / 2); // 設定坐標中心
   }
   
+  // 清空圖層內容
   clear() {
-    this.graphics.clear()
+    this.graphics.clear();
   }
 
   // 釋放圖層資源
@@ -38,7 +40,7 @@ class Layer {
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
 
-    // 邊界反彈
+    // 邊界反彈檢查
     if (this.position.x > windowWidth || this.position.x < 0) {
       this.velocity.x *= -1;
     }
@@ -47,12 +49,13 @@ class Layer {
     }
   }
 
-  // 應用力到加速度
+  // 應用物理力
   applyForce(force) {
     this.acceleration.add(force);
   }
 }
 
+// 圖層系統 - 管理多個繪圖層
 class LayerSystem {
   constructor(numLayers, debug = false) {
     this.layers = [];
@@ -61,7 +64,7 @@ class LayerSystem {
     this.initLayers();
   }
 
-  // 初始化圖層
+  // 初始化所有圖層
   initLayers() {
     for (let i = 0; i < this.numLayers; i++) {
       this.addLayer(`Layer ${i}`);
@@ -73,21 +76,22 @@ class LayerSystem {
   addLayer(name, zIndex = this.layers.length) {
     let layer = new Layer({ name: name, zIndex: zIndex });
     this.layers.push(layer);
-    this.sortLayers(); // 新增圖層後排序
+    this.sortLayers(); // 重新排序
     return layer;
   }
 
+  // 清空所有圖層
   clearAllLayer() {
-    this.layers.forEach(layer => layer.clear())
+    this.layers.forEach(layer => layer.clear());
   }
 
-  // 釋放所有圖層資源
+  // 釋放所有資源
   dispose() {
     this.layers.forEach(layer => layer.dispose());
     this.layers = [];
   }
 
-  // 根據 z-index 排序圖層
+  // Z軸排序圖層
   sortLayers() {
     this.layers.sort((a, b) => a.zIndex - b.zIndex);
   }

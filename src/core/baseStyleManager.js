@@ -1,22 +1,9 @@
-/*
-=== 通用 StyleManager 基礎類別 ===
-
-【設計原則】
-- 遵循 DRY (Don't Repeat Yourself) 原則
-- 提供通用的風格管理功能
-- 子類別只需實現特定的風格邏輯
-
-【功能概述】
-- 自動輪播管理
-- 風格切換控制
-- 數字鍵映射
-- 狀態追蹤
-- 模組匯出
-*/
+// 風格管理器基類 - 提供通用風格管理功能
+// 功能: 自動輪播、風格切換、數字鍵映射、狀態追蹤
 
 class BaseStyleManager {
   constructor(config = {}) {
-    // 基本配置
+    // 管理器配置
     this.flowerType = config.flowerType || 'unknown';
     this.styles = config.styles || {};
     this.styleNames = config.styleNames || [];
@@ -24,22 +11,38 @@ class BaseStyleManager {
     this.rotationInterval = config.rotationInterval || 20000;
     this.numberKeyMap = config.numberKeyMap || {};
     
-    // 狀態管理
+    // 當前狀態
     this.currentStyleName = this.defaultStyle;
     this.currentStyle = this.styles[this.defaultStyle];
     this.currentStyleIndex = this.styleNames.indexOf(this.defaultStyle);
     this.rotationTimer = null;
     this.isRotating = false;
     
-    // 畫刷管理器 (由子類別實現)
+    // 畫刷管理器
     this.brushManager = null;
     
-    console.log('[SYSTEM] ' + this.flowerType + ' StyleManager initialized with styles:', this.styleNames.join(', '));
+    // 只記錄一次初始化
+    if (!window[this.flowerType + 'StyleManagerInitialized']) {
+      console.log('[SYSTEM] ' + this.flowerType + ' StyleManager initialized with styles:', this.styleNames.join(', '));
+      window[this.flowerType + 'StyleManagerInitialized'] = true;
+    }
   }
   
-  // 抽象方法：初始化畫刷管理器 (子類別必須實現)
+  // 抽象方法: 初始化畫刷管理器
   initializeBrushManager() {
     throw new Error('initializeBrushManager() 必須由子類別實現');
+  }
+  
+  // 更新畫刷管理器 - 優先更新配置，必要時才重建
+  updateBrushManager() {
+    if (this.brushManager && typeof this.brushManager.updateStyle === 'function') {
+      // 更新現有配置
+      this.brushManager.updateStyle(this.currentStyle.config);
+      return true;
+    } else {
+      // 重新初始化
+      return this.initializeBrushManager();
+    }
   }
   
   // 抽象方法：生成當前風格的花朵 (子類別必須實現)
@@ -60,8 +63,8 @@ class BaseStyleManager {
     
     console.log('[LIFECYCLE] ' + this.flowerType + ' style switched to:', this.currentStyle.name);
     
-    // 初始化畫刷管理器
-    if (this.initializeBrushManager() && generateFlowers) {
+    // 更新畫刷管理器配置
+    if (this.updateBrushManager() && generateFlowers) {
       // 清除場景並生成新風格的花朵
       if (typeof sceneManager !== 'undefined') {
         sceneManager.clearScene();
@@ -74,7 +77,7 @@ class BaseStyleManager {
     return true;
   }
   
-  // ==================== 輪播控制 ====================
+  // === 輪播控制 ===
   
   // 開始自動輪播
   startAutoRotation() {
@@ -123,7 +126,7 @@ class BaseStyleManager {
     }
   }
   
-  // ==================== 導航控制 ====================
+  // === 導航控制 ===
   
   // 切換到下一個風格
   nextStyle() {
@@ -149,7 +152,7 @@ class BaseStyleManager {
     return false;
   }
   
-  // ==================== 資訊獲取 ====================
+  // === 資訊獲取 ===
   
   // 獲取當前風格信息
   getCurrentStyleInfo() {
@@ -172,7 +175,7 @@ class BaseStyleManager {
     }));
   }
   
-  // ==================== 工具方法 ====================
+  // === 工具方法 ===
   
   // 檢查風格是否存在
   hasStyle(styleName) {

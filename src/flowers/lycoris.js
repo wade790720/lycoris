@@ -1,30 +1,8 @@
-/*
-=== 彼岸花(Lycoris)生成系統 - 從0到1生成植物的完整流程 ===
+// 彼岸花生成系統
+// 流程: 風格選擇 → 粒子生成 → 花莖生長 → 花朵經放 → 花蕊生成 → 花粉效果
+// 技術: 3D向量數學、柏林噪聲、粒子系統、回調鏈控制
 
-【整體流程概述】
-1. 調用 generateFlowers() → 選擇風格、初始化畫刷系統
-2. 批量生成植物 → 為每株植物分配3D空間位置
-3. 生成花莖 → 從底部向上生長，模擬自然生長過程
-4. 花莖完成後 → 自動觸發花朵生成
-5. 生成花瓣 → 外層較大的花瓣，環形排列
-6. 生成花蕊 → 內層較細長的雄蕊雌蕊
-7. 花蕊完成後 → 在頂端生成黃色花粉效果
-
-【技術特色】
-- 使用粒子系統模擬生長動畫
-- 3D向量數學計算自然的花瓣排列
-- 柏林噪聲模擬風吹搖擺效果
-- 畫刷系統提供藝術風格的視覺效果
-- 回調鏈確保生長順序的自然性
-
-【使用方式】
-- generateFlowers() // 生成預設風格花朵
-- generateLycorisFlowers() // 經典彼岸花風格
-- generateGothicFlowers() // 哥德暗黑風格  
-- generateInkFlowers() // 中國水墨風格
-*/
-
-// 初始化 Lycoris 風格管理器 (僅在 index.html 中使用)
+// Lycoris 風格管理器初始化
 if (typeof LycorisStyleManager !== 'undefined') {
   if (typeof styleManager === 'undefined' || !styleManager) {
     window.styleManager = new LycorisStyleManager();
@@ -68,20 +46,20 @@ if (typeof LycorisStyleManager !== 'undefined') {
   }
 }
 
-// 獲取 Lycoris 風格配置的函數
+// 獲取彼岸花風格配置
 function getLycorisStyleConfig(styleName = 'original') {
-  // 嘗試從 LycorisStyleManager 獲取配置
+  // 從 StyleManager 獲取配置
   if (typeof window !== 'undefined' && window.LycorisStyleManager) {
     const styleManager = new window.LycorisStyleManager();
     const styles = styleManager.styles;
     return styles[styleName]?.config || styles.original?.config;
   }
   
-  // 如果沒有 StyleManager，使用預設配置
+  // 備用預設配置
   return getDefaultLycorisConfig();
 }
 
-// 預設 Lycoris 配置（備用）
+// 彼岸花預設配置
 function getDefaultLycorisConfig() {
   return {
     green: {
@@ -136,7 +114,7 @@ function getDefaultLycorisConfig() {
   };
 }
 
-// 花朵繪製相關的畫刷管理器
+// 彼岸花畫刷管理器
 class FlowerBrushManager {
   constructor(styleConfig = getLycorisStyleConfig('original')) {
     this.brushes = {};
@@ -203,38 +181,37 @@ class FlowerBrushManager {
   }
 }
 
-// 全域畫刷管理器實例
+// 畫刷管理器實例
 let brushManager = new FlowerBrushManager();
 
-// 將 FlowerBrushManager 暴露到全域作用域供 StyleManager 使用（用不同名稱避免衝突）
+// 暴露為全域類別
 if (typeof window !== 'undefined') {
   window.LycorisBrushManager = FlowerBrushManager;
 }
 
-// 【入口函數】主要花朵生成函數 - 支援動態風格配置
-// 這是生成植物的起始點，從這裡開始整個生成流程
+// 主花朵生成函數 - 植物生成起始點
 function generateFlowers(options = {}) {
   const {
-    style = 'default',           // 選擇風格：default(經典彼岸花)、gothic(哥德風)、ink(水墨風)
-    flowerCount = 10,            // 要生成幾朵花
-    position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, // 3D空間位置範圍
-    customStyle = null           // 自定義風格配置
+    style = 'default',           // 風格選擇
+    flowerCount = 10,            // 花朵數量
+    position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, // 3D位置範圍
+    customStyle = null           // 自定義風格
   } = options;
 
-  colorMode(HSB);               // 設定為HSB色彩模式(色相/飽和度/亮度)
+  colorMode(HSB);  // HSB色彩模式
 
-  // 【步驟1】初始化畫刷系統 - 根據選定風格準備所有繪圖工具
+  // 初始化畫刷系統
   const styleConfig = customStyle || getLycorisStyleConfig(style);
-  brushManager.updateStyle(styleConfig);    // 更新風格配置
-  brushManager.initializeAllBrushes();      // 生成各種顏色的畫刷集合
+  brushManager.updateStyle(styleConfig);
+  brushManager.initializeAllBrushes();
 
-  // 【步驟2】批量生成植物 - 在指定範圍內隨機生成多株植物
+  // 批量生成植物
   Array.from({ length: flowerCount }).forEach(() => {
-    // 為每株植物分配一個隨機的3D位置
+    // 隨機3D位置分配
     generateFlowerPlant(createVector(
-      random(position.x[0], position.x[1]),     // X軸位置
-      random(position.y[0], position.y[1]) + 300, // Y軸位置(+300讓花朵從底部開始)
-      random(position.z[0], position.z[1])      // Z軸位置
+      random(position.x[0], position.x[1]),
+      random(position.y[0], position.y[1]) + 300, // +300從底部開始
+      random(position.z[0], position.z[1])
     ));
   });
 }

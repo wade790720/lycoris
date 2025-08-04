@@ -1,3 +1,4 @@
+// 畫刷系統 - 管理畫刷實例與 Canvas 資源池
 class BrushSystem {
   constructor() {
     this.brushes = [];
@@ -8,11 +9,12 @@ class BrushSystem {
       premultipliedAlpha: false
     });
     
-    // Canvas 池：重用而不是創建新的
-    this.canvasPool = new Map(); // key = size, value = {available: [], inUse: []}
-    this.maxPoolSize = 10; // 每個尺寸最多保留的 canvas 數量
+    // Canvas 資源池 - 重用避免重複創建
+    this.canvasPool = new Map();
+    this.maxPoolSize = 10; // 每尺寸最大緩存數
   }
 
+  // 創建畫刷實例
   createBrush(args) {
     const brush = new Brush({
       ...args,
@@ -24,7 +26,7 @@ class BrushSystem {
     return brush;
   }
 
-  // 從池中獲取 canvas，如果沒有則創建新的
+  // 獲取 Canvas - 優先使用池中現有資源
   acquireCanvas(size) {
     if (!this.canvasPool.has(size)) {
       this.canvasPool.set(size, { available: [], inUse: [] });
@@ -37,7 +39,7 @@ class BrushSystem {
       // 重用現有的 canvas
       canvas = pool.available.pop();
     } else {
-      // 創建新的 canvas
+      // 創建新 Canvas
       canvas = createGraphics(size, size);
     }
     
@@ -45,7 +47,7 @@ class BrushSystem {
     return canvas;
   }
 
-  // 釋放 canvas 回池中
+  // 釋放 Canvas 回資源池
   releaseCanvas(canvas, size) {
     if (!this.canvasPool.has(size)) return;
     
@@ -55,19 +57,19 @@ class BrushSystem {
     if (index > -1) {
       pool.inUse.splice(index, 1);
       
-      // 清理 canvas
+      // 清理 Canvas 內容
       canvas.clear();
       
-      // 如果池未滿則放回，否則銷毀
+      // 池未滿則回收，否則銷毀
       if (pool.available.length < this.maxPoolSize) {
         pool.available.push(canvas);
       } else {
-        canvas.remove(); // 重要：調用 p5.js 的 remove() 方法
+        canvas.remove(); // 銷毀 Canvas 資源
       }
     }
   }
 
-  // 清理整個池（在程式結束時調用）
+  // 清理資源池 - 程式結束時調用
   dispose() {
     for (const [size, pool] of this.canvasPool) {
       [...pool.available, ...pool.inUse].forEach(canvas => {
@@ -78,30 +80,33 @@ class BrushSystem {
     this.sharedCanvas.remove();
   }
 
+  // 更新所有畫刷
   updateAllBrushes() {
     this.brushes.forEach(brush => brush.update());
   }
 
+  // 獲取畫刷圖像
   getBrushImage(index) {
     return this.brushes[index]?.getImage() || null;
   }
 
-  // 移除筆刷並釋放資源
+  // 移除畫刷並釋放資源
   removeBrush(brush) {
     const index = this.brushes.indexOf(brush);
     if (index > -1) {
-      brush.dispose(); // 釋放 canvas
+      brush.dispose(); // 釋放 Canvas
       this.brushes.splice(index, 1);
     }
   }
 
-  // 清理所有筆刷
+  // 清理所有畫刷
   clear() {
     this.brushes.forEach(brush => brush.dispose());
     this.brushes = [];
   }
 }
 
+// 畫刷類 - 單一畫刷實例管理
 class Brush {
   constructor(args) {
     const defaults = {

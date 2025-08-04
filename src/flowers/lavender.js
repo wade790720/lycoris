@@ -1,45 +1,28 @@
-/*
-=== 彼岸花(Lycoris)生成系統 - 從0到1生成植物的完整流程 ===
+// 薰衣草花朵生成系統
+// 流程: 風格選擇 → 粒子生成 → 花莖生長 → 花朵經放 → 花蕊生成
+// 技術: 3D向量數學、柏林噪聲、粒子系統、回調鏈控制
 
-【整體流程概述】
-1. 調用 generateFlowers() → 選擇風格、初始化畫刷系統
-2. 批量生成植物 → 為每株植物分配3D空間位置
-3. 生成花莖 → 從底部向上生長，模擬自然生長過程
-4. 花莖完成後 → 自動觸發花朵生成
-5. 生成花瓣 → 外層較大的花瓣，環形排列
-6. 生成花蕊 → 內層較細長的雄蕊雌蕊
-7. 花蕊完成後 → 在頂端生成黃色花粉效果
-
-【技術特色】
-- 使用粒子系統模擬生長動畫
-- 3D向量數學計算自然的花瓣排列
-- 柏林噪聲模擬風吹搖擺效果
-- 畫刷系統提供藝術風格的視覺效果
-- 回調鏈確保生長順序的自然性
-
-【使用方式】
-- generateFlowers() // 生成預設風格花朵
-- generateLycorisFlowers() // 經典彼岸花風格
-- generateGothicFlowers() // 哥德暗黑風格  
-- generateInkFlowers() // 中國水墨風格
-*/
-
-// 初始化 Lavender 風格管理器 (僅在 lavender.html 中使用)
+// Lavender 風格管理器初始化
 if (typeof LavenderStyleManager !== 'undefined') {
   if (typeof styleManager === 'undefined' || !styleManager) {
     window.styleManager = new LavenderStyleManager();
     console.log('[SYSTEM] LavenderStyleManager loaded and registered');
     
-    // 添加初始化方法
+    // 初始化方法 - 等待 SceneManager 準備完成
     window.styleManager.initializeDefault = function() {
-      this.switchToStyle('default');
-      this.startAutoRotation();
-      console.log('[LIFECYCLE] LavenderStyleManager initialized with default style and auto-rotation enabled');
+      // 等待 SceneManager 準備完成
+      if (typeof sceneManager !== 'undefined') {
+        this.switchToStyle('default');
+        this.startAutoRotation();
+        console.log('[LIFECYCLE] LavenderStyleManager initialized with default style and auto-rotation enabled');
+      } else {
+        console.log('[SYSTEM] Deferring LavenderStyleManager initialization until SceneManager is ready');
+      }
     };
     
-    // 添加鍵盤事件處理方法
+    // 鍵盤事件處理
     window.styleManager.handleKeyPressed = function(key, keyCode) {
-      // 🎨 統一風格切換鍵位（1-8 數字鍵）
+      // 數字鍵 1-8 切換風格
       if (key >= '1' && key <= '8') {
         const number = parseInt(key);
         if (this.switchByNumber(number)) {
@@ -47,13 +30,13 @@ if (typeof LavenderStyleManager !== 'undefined') {
           console.log('[LIFECYCLE] Style switched by number key', number, ':', info.displayName);
         }
       } 
-      // 空格鍵：暫停/恢復自動輪播
+      // 空格鍵切換輪播
       else if (key === ' ') {
         this.toggleRotation();
         const info = this.getCurrentStyleInfo();
         console.log('[LIFECYCLE] Auto-rotation toggled:', info.isRotating ? 'resumed' : 'paused', '- current style:', info.displayName);
       }
-      // 左右方向鍵：手動切換風格
+      // 左右方向鍵切換風格
       else if (keyCode === LEFT_ARROW) {
         this.previousStyle();
         const info = this.getCurrentStyleInfo();
@@ -258,7 +241,7 @@ function generateFlowers(options = {}) {
     flowerCount = 40,            // 要生成幾朵花
     position = { x: [-100, 100], y: [-20, 20], z: [-100, 100] }, 
     customStyle = null,           // 自定義風格配置
-    clusterMode = true           // 叢生模式
+    clusterMode = false           // 叢生模式
   } = options;
 
   colorMode(HSB);               // 設定為HSB色彩模式(色相/飽和度/亮度)
@@ -426,7 +409,7 @@ class FlowerStemGenerator {
         }
       },
 
-      // 【世界級動畫效果】S曲線生長 + 自然風動
+      // S曲線生長 + 自然風動
       tick: (_this) => {
         // S曲線生長軌跡 - 模擬自然植物的優雅彎曲
         const progress = 1 - (_this.lifespan / _this.originalLive);
@@ -483,9 +466,6 @@ class FlowerGenerator {
 
     // 【步驟5.2】先生成外層花瓣 - 較大較明顯的花瓣
     this._generatePetals(stemParticle, flowerParams);
-
-    // 【步驟5.3】再生成內層花蕊 - 較細長的雄蕊和雌蕊
-    // this._generateStamens(stemParticle, flowerParams);
   }
 
   // 【步驟5.1.1】計算花朵的基本參數 - 將複雜的3D數學運算集中管理
@@ -589,8 +569,6 @@ class FlowerGenerator {
 // 全域花朵生成器實例
 const flowerGenerator = new FlowerGenerator();
 
-// 🎨 世界級美學配色系列函數
-
 // 普羅旺斯薰衣草田 - 法國印象派風情
 const generateProvenceLavender = (options = {}) => {
   const defaultOptions = {
@@ -636,20 +614,10 @@ const generateOceanicLavender = (options = {}) => {
 };
 
 
-
-// 【經典函數】保留原有風格支持
-const generateLycorisFlowers = (options = {}) => generateFlowers({ ...options, style: 'default' }); // 經典彼岸花
-const generateGothicFlowers = (options = {}) => generateFlowers({ ...options, style: 'gothic' });   // 哥德暗黑風
-const generateInkFlowers = (options = {}) => generateFlowers({ ...options, style: 'ink' });         // 中國水墨風
-
 // 匯出主要函數和類別供外部使用
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     generateFlowers,
-    generateLycorisFlowers,
-    generateGothicFlowers,
-    generateInkFlowers,
-    // 🎨 世界級美學配色系列
     generateProvenceLavender,
     generateNordicLavender,
     generateJapaneseLavender,
