@@ -1,8 +1,11 @@
 // 圖層類 - 單一繪圖層管理
 class Layer {
   constructor(args = {}) {
+    // 使用資源管理器獲取graphics
+    const resourceManager = getResourceManager();
+    
     let def = {
-      graphics: createGraphics(windowWidth, windowHeight),
+      graphics: resourceManager.acquireGraphics(windowWidth, windowHeight),
       name: "Unnamed Layer",
       zIndex: 0,
       position: createVector(0, 0),
@@ -12,14 +15,15 @@ class Layer {
       scale: 1.02,
       speed: random(0.01, 0.05),
       randomId: int(random(100000)),
-      noiseOffsetX: random(1000),    // X軸噪音偏移
-      noiseOffsetY: random(1000),    // Y軸噪音偏移
-      noiseOffsetSize: random(1000)  // 尺寸噪音偏移
+      noiseOffsetX: random(1000),
+      noiseOffsetY: random(1000),
+      noiseOffsetSize: random(1000),
+      resourceManager: resourceManager  // 保存引用用於釋放
     };
     Object.assign(def, args);
     Object.assign(this, def);
 
-    this.graphics.translate(width / 2, height / 2); // 設定坐標中心
+    this.graphics.translate(width / 2, height / 2);
   }
   
   // 清空圖層內容
@@ -29,8 +33,15 @@ class Layer {
 
   // 釋放圖層資源
   dispose() {
-    if (this.graphics) {
-      this.graphics.remove();
+    if (this.graphics && this.resourceManager) {
+      // 使用資源管理器釋放
+      this.resourceManager.releaseGraphics(this.graphics);
+      this.graphics = null;
+    } else if (this.graphics) {
+      // 備用方案：直接釋放
+      if (this.graphics.remove) {
+        this.graphics.remove();
+      }
       this.graphics = null;
     }
   }
@@ -61,7 +72,11 @@ class LayerSystem {
     this.layers = [];
     this.numLayers = numLayers;
     this.debug = debug;
+    this.resourceManager = getResourceManager();
+    this.disposed = false;
+    
     this.initLayers();
+    console.log(`[SYSTEM] LayerSystem initialized with ${numLayers} layers using ResourceManager`);
   }
 
   // 初始化所有圖層
@@ -74,21 +89,58 @@ class LayerSystem {
 
   // 新增圖層
   addLayer(name, zIndex = this.layers.length) {
-    let layer = new Layer({ name: name, zIndex: zIndex });
+    if (this.disposed) {
+      console.warn('[LAYER] Cannot add layer to disposed LayerSystem');
+      return null;
+    }
+    
+    let layer = new Layer({ 
+      name: name, 
+      zIndex: zIndex,
+      resourceManager: this.resourceManager 
+    });
     this.layers.push(layer);
-    this.sortLayers(); // 重新排序
+    this.sortLayers();
     return layer;
   }
 
   // 清空所有圖層
   clearAllLayer() {
-    this.layers.forEach(layer => layer.clear());
+    if (this.disposed) {
+      console.warn('[LAYER] Cannot clear disposed LayerSystem');
+      return;
+    }
+    
+    this.layers.forEach(layer => {
+      try {
+        layer.clear();
+      } catch (error) {
+        console.error('[LAYER] Error clearing layer:', error);
+      }
+    });
   }
 
   // 釋放所有資源
   dispose() {
-    this.layers.forEach(layer => layer.dispose());
+    if (this.disposed) {
+      console.warn('[LAYER] LayerSystem already disposed');
+      return;
+    }
+    
+    console.log(`[LAYER] Disposing ${this.layers.length} layers`);
+    
+    // 逐一釋放層級資源
+    this.layers.forEach((layer, index) => {
+      try {
+        layer.dispose();
+      } catch (error) {
+        console.error(`[LAYER] Error disposing layer ${index}:`, error);
+      }
+    });
+    
     this.layers = [];
+    this.disposed = true;
+    console.log('[LAYER] LayerSystem disposed');
   }
 
   // Z軸排序圖層
@@ -98,41 +150,55 @@ class LayerSystem {
 
   // 更新所有圖層位置
   update() {
+    if (this.disposed) return;
+    
     for (let layer of this.layers) {
-      layer.position.x = sin(frameCount / 250 + layer.randomId + mouseX / 500) * width / 50
-      layer.position.y = cos(frameCount / 450 + layer.randomId + mouseY / 500) * width / 80
-      layer.rotation = cos(frameCount / 800 + layer.randomId) / 100
-      layer.updatePosition();
+      try {
+        layer.position.x = sin(frameCount / 250 + layer.randomId + mouseX / 500) * width / 50;
+        layer.position.y = cos(frameCount / 450 + layer.randomId + mouseY / 500) * width / 80;
+        layer.rotation = cos(frameCount / 800 + layer.randomId) / 100;
+        layer.updatePosition();
+      } catch (error) {
+        console.error('[LAYER] Error updating layer:', error);
+      }
     }
   }
 
   // 繪製所有圖層
   draw(mainGraphics) {
+    if (this.disposed || !mainGraphics) return;
+    
     for (let i = 0; i < this.layers.length; i++) {
       let layer = this.layers[i];
-      mainGraphics.push();
-      let behindVal = map(i, 3, 0, 1, 0, true)
-
-      if (i < 5) {
-        mainGraphics.drawingContext.filter = `blur(${int(behindVal * 10)}px) `
-
-      }
-      mainGraphics.blendMode(SCREEN)
-      mainGraphics.translate(layer.position.x, layer.position.y);
-      mainGraphics.rotate(layer.rotation);
-      mainGraphics.scale(layer.scale);
-      mainGraphics.image(layer.graphics, 0, 0);
-      mainGraphics.pop();
-
-      // 如果啟用了 debug 模式，繪製圖層編號和 randomId
-      if (this.debug) {
+      if (!layer || !layer.graphics) continue;
+      
+      try {
         mainGraphics.push();
-        mainGraphics.translate(layer.position.x + width / 2, layer.position.y + height / 2);
-        mainGraphics.fill(255, 0, 0);
-        mainGraphics.textSize(32);
-        mainGraphics.textAlign(CENTER, CENTER);
-        mainGraphics.text(`${i} (${layer.randomId})`, 0, 0); // 顯示編號和 randomId
+        let behindVal = map(i, 3, 0, 1, 0, true);
+
+        if (i < 5) {
+          mainGraphics.drawingContext.filter = `blur(${int(behindVal * 10)}px) `;
+        }
+        
+        mainGraphics.blendMode(SCREEN);
+        mainGraphics.translate(layer.position.x, layer.position.y);
+        mainGraphics.rotate(layer.rotation);
+        mainGraphics.scale(layer.scale);
+        mainGraphics.image(layer.graphics, 0, 0);
         mainGraphics.pop();
+
+        // Debug模式
+        if (this.debug) {
+          mainGraphics.push();
+          mainGraphics.translate(layer.position.x + width / 2, layer.position.y + height / 2);
+          mainGraphics.fill(255, 0, 0);
+          mainGraphics.textSize(32);
+          mainGraphics.textAlign(CENTER, CENTER);
+          mainGraphics.text(`${i} (${layer.randomId})`, 0, 0);
+          mainGraphics.pop();
+        }
+      } catch (error) {
+        console.error(`[LAYER] Error drawing layer ${i}:`, error);
       }
     }
   }
@@ -169,20 +235,41 @@ class LayerSystem {
     }
   }
 
-  // 獲取圖層數量
+  // 獲取圖層數量  
   get layerCount() {
-    return this.layers.length;
+    return this.disposed ? 0 : this.layers.length;
+  }
+  
+  // 檢查是否已釋放
+  get isDisposed() {
+    return this.disposed;
   }
 
   // 隨機獲取圖層
   getRandomLayer(minZIndex = -Infinity, maxZIndex = Infinity) {
+    if (this.disposed || this.layers.length === 0) {
+      return null;
+    }
+    
     let filteredLayers = this.layers.filter(
-      layer => layer.zIndex >= minZIndex && layer.zIndex <= maxZIndex
+      layer => layer && layer.zIndex >= minZIndex && layer.zIndex <= maxZIndex
     );
+    
     if (filteredLayers.length === 0) {
       return null;
     }
+    
     let randomIndex = floor(random(filteredLayers.length));
     return filteredLayers[randomIndex];
+  }
+  
+  // 獲取系統統計
+  getStats() {
+    return {
+      totalLayers: this.layers.length,
+      activeLayers: this.layers.filter(l => l && l.graphics).length,
+      disposed: this.disposed,
+      resourceStats: this.resourceManager ? this.resourceManager.getStats() : null
+    };
   }
 }

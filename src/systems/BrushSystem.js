@@ -9,9 +9,9 @@ class BrushSystem {
       premultipliedAlpha: false
     });
     
-    // Canvas 資源池 - 重用避免重複創建
-    this.canvasPool = new Map();
-    this.maxPoolSize = 10; // 每尺寸最大緩存數
+    // 使用統一資源管理器
+    this.resourceManager = getResourceManager();
+    console.log('[SYSTEM] BrushSystem integrated with ResourceManager');
   }
 
   // 創建畫刷實例
@@ -26,58 +26,28 @@ class BrushSystem {
     return brush;
   }
 
-  // 獲取 Canvas - 優先使用池中現有資源
+  // 獲取 Canvas - 使用統一資源管理器
   acquireCanvas(size) {
-    if (!this.canvasPool.has(size)) {
-      this.canvasPool.set(size, { available: [], inUse: [] });
-    }
-    
-    const pool = this.canvasPool.get(size);
-    let canvas;
-    
-    if (pool.available.length > 0) {
-      // 重用現有的 canvas
-      canvas = pool.available.pop();
-    } else {
-      // 創建新 Canvas
-      canvas = createGraphics(size, size);
-    }
-    
-    pool.inUse.push(canvas);
-    return canvas;
+    return this.resourceManager.acquireGraphics(size, size);
   }
 
   // 釋放 Canvas 回資源池
-  releaseCanvas(canvas, size) {
-    if (!this.canvasPool.has(size)) return;
-    
-    const pool = this.canvasPool.get(size);
-    const index = pool.inUse.indexOf(canvas);
-    
-    if (index > -1) {
-      pool.inUse.splice(index, 1);
-      
-      // 清理 Canvas 內容
-      canvas.clear();
-      
-      // 池未滿則回收，否則銷毀
-      if (pool.available.length < this.maxPoolSize) {
-        pool.available.push(canvas);
-      } else {
-        canvas.remove(); // 銷毀 Canvas 資源
-      }
-    }
+  releaseCanvas(canvas, size = null) {
+    return this.resourceManager.releaseGraphics(canvas);
   }
 
   // 清理資源池 - 程式結束時調用
   dispose() {
-    for (const [size, pool] of this.canvasPool) {
-      [...pool.available, ...pool.inUse].forEach(canvas => {
-        canvas.remove();
-      });
+    // 清理所有畫刷
+    this.brushes.forEach(brush => brush.dispose());
+    this.brushes = [];
+    
+    // 清理共享資源
+    if (this.sharedCanvas && this.sharedCanvas.remove) {
+      this.sharedCanvas.remove();
     }
-    this.canvasPool.clear();
-    this.sharedCanvas.remove();
+    
+    console.log('[SYSTEM] BrushSystem disposed');
   }
 
   // 更新所有畫刷
@@ -103,6 +73,15 @@ class BrushSystem {
   clear() {
     this.brushes.forEach(brush => brush.dispose());
     this.brushes = [];
+  }
+
+  // 獲取系統統計
+  getStats() {
+    return {
+      totalBrushes: this.brushes.length,
+      activeBrushes: this.brushes.filter(b => b.brushImage).length,
+      resourceStats: this.resourceManager.getStats()
+    };
   }
 }
 
@@ -196,7 +175,7 @@ function mergeBrushHeads(brush1, brush2) {
   // 包裝返回物件，包含清理方法
   return {
     getImage: () => mergedBrush,
-    dispose: () => brushSystem.releaseCanvas(mergedBrush, mergedCanvasSize),
+    dispose: () => brushSystem.releaseCanvas(mergedBrush),
     width: mergedCanvasSize,
     height: mergedCanvasSize
   };

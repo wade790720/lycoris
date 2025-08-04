@@ -46,13 +46,23 @@ class Particle {
     this.state = { ...this.state, ...config };
     Object.entries(this.state).forEach(([key, value]) => this[key] = value);
 
-    const pathColor = color(this.color)
-    pathColor.setAlpha(200)
-    this.originalLive = this.lifespan
-    this.pathColor = pathColor
+    const pathColor = color(this.color);
+    pathColor.setAlpha(200);
+    this.originalLive = this.lifespan;
+    this.pathColor = pathColor;
+    
+    // 初始化資源管理
+    this.resourceManager = getResourceManager();
+    this.disposed = false;
+    
+    // 歷史記錄配置優化
+    this.maxHistorySize = 200; // 降低至200(原500)
+    this.historyCleanupThreshold = 150; // 達到150時清理至100
   }
 
   update() {
+    if (this.disposed) return;
+    
     if (this.preDelay >= 0) {
       this.preDelay--;
       return;
@@ -70,15 +80,17 @@ class Particle {
     this.lifespan -= 1;
     this.radius *= this.radiusShrinkFactor;
 
-    // 記錄當前位置到歷史記錄
-    let sampleRate = 3;
+    // 記錄當前位置到歷史記錄(優化版)
+    let sampleRate = 4; // 提高至 4(降低頻率)
     if ((frameCount + int(this.randomId)) % sampleRate == 0 && this.isAlive) {
       this.history.push(this.p.copy());
     }
 
-    // 限制歷史記錄的長度
-    if (this.history.length > 500) {
-      this.history.shift();
+    // 批量清理歷史記錄(效率優化)
+    if (this.history.length > this.maxHistorySize) {
+      // 一次清理多個元素，避免頻繁shift
+      const removeCount = this.history.length - this.historyCleanupThreshold;
+      this.history.splice(0, removeCount);
     }
     if (this.lifespan == this.originalLive - 1) {
       this.history.push(this.p.copy());
@@ -86,6 +98,7 @@ class Particle {
     if (this.radius < 0.1 || this.lifespan < 0) {
       this.history.push(this.p.copy());
       if (this.endCallback) this.endCallback(this);
+      this.dispose(); // 自動釋放資源
       this.isAlive = false;
     }
 
@@ -94,8 +107,8 @@ class Particle {
   }
 
   draw({ angleX, angleY, angleZ, camera, fov, zoom }) {
-    // 如果有預設延遲，則不進行繪製
-    if (this.preDelay >= 0) return;
+    // 如果已釋放或有預設延遲，則不進行繪製
+    if (this.disposed || this.preDelay >= 0) return;
 
     // 取得主要繪圖區域
     let mainGraphics = this.mainGraphics;
@@ -329,6 +342,41 @@ class Particle {
     if (isNaN(radius) || radius <= 0) radius = 0.001;
 
     return radius;
+  }
+  
+  // 釋放粒子資源
+  dispose() {
+    if (this.disposed) return;
+    
+    // 清理歷史記錄
+    if (this.history && this.history.length > 0) {
+      this.history.length = 0; // 最快的清空方式
+    }
+    
+    // 清理向量引用
+    this.lastPosition = null;
+    this.p = null;
+    this.vector = null;
+    this.acceleration = null;
+    this.axis = null;
+    
+    // 清理渲染資源
+    this.p2D = null;
+    this.p2D2 = null;
+    this.brush = null;
+    this.brush2 = null;
+    
+    // 清理回調函數
+    this.tick = null;
+    this.endCallback = null;
+    this.draw2D = null;
+    
+    this.disposed = true;
+  }
+  
+  // 檢查是否已釋放
+  get isDisposed() {
+    return this.disposed;
   }
 }
 
