@@ -32,11 +32,15 @@
     <!-- 7. 場景管理器 - 渲染邏輯協調器 -->
     <script src="src/core/SceneManager.js" type="text/javascript"></script>
 
-    <!-- 8. 場景內容 - 具體場景實現 -->
+    <!-- 8. 花朵基礎類別 - 必須在具體花朵類別前載入 -->
+    <script src="src/flowers/FlowerBase.js" type="text/javascript"></script>
+    <script src="src/flowers/LycorisFlower.js" type="text/javascript"></script>
+
+    <!-- 9. 場景內容 - 具體場景實現 -->
     <script src="src/flowers/lycoris.js" type="text/javascript"></script>
     <!-- <script src="src/flowers/gothic.js" type="text/javascript"></script> -->
 
-    <!-- 9. 主程式入口 - 應用程式生命週期管理，最後載入 -->
+    <!-- 10. 主程式入口 - 應用程式生命週期管理，最後載入 -->
     <script src="src/core/main.js" type="text/javascript"></script>
   </head>
   <body></body>

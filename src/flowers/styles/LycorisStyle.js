@@ -8,7 +8,7 @@
 - 只適用於 index.html + lycoris.js
 
 【支援風格】
-1. original - 🌺 經典彼岸花
+1. default - 🌺 經典彼岸花
 2. gothic - 🖤 哥德暗黑 
 3. ink - 🖋️ 中國水墨
 */
@@ -16,7 +16,7 @@
 // Lycoris 彼岸花風格配置
 const LYCORIS_STYLES = {
   // 經典彼岸花
-  original: {
+  default: {
     name: '🌺 經典彼岸花',
     config: {
       green: {
@@ -222,13 +222,13 @@ class LycorisStyleManager extends BaseStyleManager {
     const config = {
       flowerType: 'Lycoris',
       styles: LYCORIS_STYLES,
-      styleNames: ['original', 'gothic', 'ink'],
-      defaultStyle: 'original',
+      styleNames: ['default', 'gothic', 'ink'],
+      defaultStyle: 'default',
       rotationInterval: 20000, // 20秒
       numberKeyMap: {
-        6: 'gothic',   // 6 → 🖤 哥德暗黑
-        7: 'ink',      // 7 → 🖋️ 中國水墨
-        8: 'original'  // 8 → 🌺 經典彼岸花
+        1: 'gothic',   // 6 → 🖤 哥德暗黑
+        2: 'ink',      // 7 → 🖋️ 中國水墨
+        8: 'default'  // 8 → 🌺 經典彼岸花
       }
     };
     
@@ -238,12 +238,12 @@ class LycorisStyleManager extends BaseStyleManager {
   // 實現基類的抽象方法：初始化 Lycoris 畫刷管理器
   initializeBrushManager() {
     // 使用 lycoris.js 的 LycorisBrushManager
-    if (typeof window.LycorisBrushManager !== 'undefined') {
-      this.brushManager = new window.LycorisBrushManager(this.currentStyle.config);
+    if (typeof window.FlowerBrushManager !== 'undefined') {
+      this.brushManager = new window.FlowerBrushManager(this.currentStyle.config);
       this.brushManager.initializeAllBrushes();
       return true;
     } else {
-      console.warn('[ERROR] LycorisBrushManager 未找到，請確保 lycoris.js 已載入');
+      console.warn('[ERROR] FlowerBrushManager 未找到，請確保 lycoris.js 已載入');
       return false;
     }
   }
@@ -256,23 +256,26 @@ class LycorisStyleManager extends BaseStyleManager {
       flowerCount: 10,
       position: { x: [-100, 100], y: [-20, 20], z: [-100, 100] }
     };
+
+    console.log(this.currentStyleName);
     
     // 調用對應的 lycoris 生成函數
     switch (this.currentStyleName) {
+      
       case 'gothic':
-        if (typeof generateGothicFlowers !== 'undefined') {
-          generateGothicFlowers(options);
+        if (typeof generateGothicLycoris !== 'undefined') {
+          generateGothicLycoris(options);
         }
         break;
       case 'ink':
-        if (typeof generateInkFlowers !== 'undefined') {
-          generateInkFlowers(options);
+        if (typeof generateInkLycoris !== 'undefined') {
+          generateInkLycoris(options);
         }
         break;
-      case 'original':
+      case 'default':
       default:
-        if (typeof generateLycorisFlowers !== 'undefined') {
-          generateLycorisFlowers(options);
+        if (typeof generateFlowers !== 'undefined') {
+          generateFlowers({ ...options, style: this.currentStyleName });
         }
         break;
     }
