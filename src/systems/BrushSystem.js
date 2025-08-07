@@ -11,7 +11,6 @@ class BrushSystem {
     
     // 使用統一資源管理器
     this.resourceManager = getResourceManager();
-    console.log('[SYSTEM] BrushSystem integrated with ResourceManager');
   }
 
   // 創建畫刷實例
@@ -47,7 +46,6 @@ class BrushSystem {
       this.sharedCanvas.remove();
     }
     
-    console.log('[SYSTEM] BrushSystem disposed');
   }
 
   // 更新所有畫刷

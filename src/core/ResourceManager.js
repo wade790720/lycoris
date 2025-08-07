@@ -31,7 +31,6 @@ class ResourceManager {
     // 啟動定期清理
     this.startCleanupTimer();
     
-    console.log('[SYSTEM] ResourceManager initialized with enhanced pools');
   }
 
   // === Canvas資源池管理 ===

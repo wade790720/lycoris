@@ -16,69 +16,47 @@ function preload() {
 
 // p5.js 主初始化
 function setup() {
-  console.log('[STARTUP] Application initialization started');
   
   appConfig = new AppConfig();
   const canvasConfig = appConfig.getCanvasConfig();
-  
-  console.log('[STARTUP] Canvas configuration loaded:', canvasConfig.width + 'x' + canvasConfig.height);
 
   // 配置畫布
   pixelDensity(canvasConfig.pixelDensity);
   cnv = createCanvas(canvasConfig.width, canvasConfig.height);
-  console.log('[STARTUP] Canvas created successfully');
 
   initializeApplication();
 }
 
 // 初始化應用核心
-function initializeApplication() {
-  console.log('[STARTUP] Core systems initialization started');
-  
+function initializeApplication() {  
   debugManager = new DebugManager();
   debugManager.setEnabled(appConfig.debug);
-  console.log('[SYSTEM] DebugManager initialized, debug:', appConfig.debug);
   
   sceneManager = new SceneManager();
-  console.log('[SYSTEM] SceneManager initialized');
   
   initializeSystems();
   initializeScene();
   
-  console.log('[STARTUP] Application initialization completed');
 }
 
 function initializeSystems() {
-  console.log('[SYSTEM] Systems initialization started');
-  
   mainGraphics = createGraphics(width, height);
-  console.log('[SYSTEM] MainGraphics created:', width + 'x' + height);
   
-  controls = new Controls();
-  console.log('[SYSTEM] Controls system initialized');
-  
+  controls = new Controls();  
   brushSystem = new BrushSystem();
-  console.log('[SYSTEM] BrushSystem initialized');
-  
   layerSystem = new LayerSystem(12, appConfig.debug);
-  console.log('[SYSTEM] LayerSystem initialized with', 12, 'layers, debug:', appConfig.debug);
 }
 
 function initializeScene() {
-  console.log('[LIFECYCLE] Scene initialization started');
   
   sceneManager.initialize();
-  console.log('[LIFECYCLE] SceneManager initialized');
   
   // 初始化風格管理器
   if (window.styleManager && typeof window.styleManager.initializeDefault === 'function') {
     window.styleManager.initializeDefault();
-    console.log('[LIFECYCLE] StyleManager initialized and default style applied');
   } else {
     console.warn('[ERROR] StyleManager not found or initializeDefault method missing');
   }
-  
-  console.log('[LIFECYCLE] Scene initialization completed');
 }
 
 // 主渲染循環

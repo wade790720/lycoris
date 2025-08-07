@@ -76,7 +76,6 @@ class LayerSystem {
     this.disposed = false;
     
     this.initLayers();
-    console.log(`[SYSTEM] LayerSystem initialized with ${numLayers} layers using ResourceManager`);
   }
 
   // 初始化所有圖層

@@ -23,7 +23,6 @@ class BaseStyleManager {
     
     // 只記錄一次初始化
     if (!window[this.flowerType + 'StyleManagerInitialized']) {
-      console.log('[SYSTEM] ' + this.flowerType + ' StyleManager initialized with styles:', this.styleNames.join(', '));
       window[this.flowerType + 'StyleManagerInitialized'] = true;
     }
   }
@@ -38,6 +37,11 @@ class BaseStyleManager {
     if (this.brushManager && typeof this.brushManager.updateStyle === 'function') {
       // 更新現有配置
       this.brushManager.updateStyle(this.currentStyle.config);
+      
+      // 確保畫刷已初始化
+      if (typeof this.brushManager.initializeAllBrushes === 'function') {
+        this.brushManager.initializeAllBrushes();
+      }
       return true;
     } else {
       // 重新初始化
@@ -57,6 +61,7 @@ class BaseStyleManager {
       return false;
     }
     
+    
     this.currentStyleName = styleName;
     this.currentStyle = this.styles[styleName];
     this.currentStyleIndex = this.styleNames.indexOf(styleName);
@@ -64,14 +69,20 @@ class BaseStyleManager {
     console.log('[LIFECYCLE] ' + this.flowerType + ' style switched to:', this.currentStyle.name);
     
     // 更新畫刷管理器配置
-    if (this.updateBrushManager() && generateFlowers) {
+    const brushUpdateSuccess = this.updateBrushManager();
+    
+    if (brushUpdateSuccess && generateFlowers) {
       // 清除場景並生成新風格的花朵
       if (typeof sceneManager !== 'undefined') {
         sceneManager.clearScene();
+      } else {
+        console.warn('[WARNING] sceneManager not available, cannot clear scene');
       }
       
       // 調用風格生成函數
       this.generateCurrentStyleFlowers();
+    } else if (!brushUpdateSuccess) {
+      console.error('[ERROR] Failed to update brush manager, skipping flower generation');
     }
     
     return true;
@@ -86,7 +97,6 @@ class BaseStyleManager {
     }
     
     this.isRotating = true;
-    console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation started, interval:', this.rotationInterval/1000 + 's');
     
     this.rotationTimer = setInterval(() => {
       this.nextStyle();
@@ -100,20 +110,17 @@ class BaseStyleManager {
       this.rotationTimer = null;
     }
     this.isRotating = false;
-    console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation stopped');
   }
   
   // 暫停輪播
   pauseRotation() {
     this.stopAutoRotation();
-    console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation paused');
   }
   
   // 恢復輪播
   resumeRotation() {
     if (!this.isRotating) {
       this.startAutoRotation();
-      console.log('[LIFECYCLE] ' + this.flowerType + ' auto-rotation resumed');
     }
   }
   

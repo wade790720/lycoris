@@ -9,13 +9,11 @@
 if (typeof LycorisStyleManager !== 'undefined') {
   if (typeof styleManager === 'undefined' || !styleManager) {
     window.styleManager = new LycorisStyleManager();
-    console.log('[SYSTEM] LycorisStyleManager loaded and registered');
     
     // 添加初始化方法
     window.styleManager.initializeDefault = function() {
       this.switchToStyle('default');
       this.startAutoRotation();
-      console.log('[LIFECYCLE] LycorisStyleManager initialized with default style and auto-rotation enabled');
     };
     
     // 添加鍵盤事件處理方法
@@ -25,25 +23,21 @@ if (typeof LycorisStyleManager !== 'undefined') {
         const number = parseInt(key);
         if (this.switchByNumber(number)) {
           const info = this.getCurrentStyleInfo();
-          console.log('[LIFECYCLE] Style switched by number key', number, ':', info.displayName);
         }
       } 
       // 空格鍵：暫停/恢復自動輪播
       else if (key === ' ') {
         this.toggleRotation();
         const info = this.getCurrentStyleInfo();
-        console.log('[LIFECYCLE] Auto-rotation toggled:', info.isRotating ? 'resumed' : 'paused', '- current style:', info.displayName);
       }
       // 左右方向鍵：手動切換風格
       else if (keyCode === LEFT_ARROW) {
         this.previousStyle();
         const info = this.getCurrentStyleInfo();
-        console.log('[LIFECYCLE] Style switched to previous:', info.displayName);
       }
       else if (keyCode === RIGHT_ARROW) {
         this.nextStyle();
         const info = this.getCurrentStyleInfo();
-        console.log('[LIFECYCLE] Style switched to next:', info.displayName);
       }
     };
   }
@@ -68,7 +62,6 @@ function initializeLycoris() {
   if (typeof LycorisFlower !== 'undefined') {
     lycorisFlower = new LycorisFlower();
     brushManager = lycorisFlower.brushManager;
-    console.log('[SYSTEM] LycorisFlower initialized');
   } else {
     console.warn('[SYSTEM] LycorisFlower class not found');
   }

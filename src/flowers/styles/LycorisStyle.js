@@ -237,47 +237,84 @@ class LycorisStyleManager extends BaseStyleManager {
   
   // 實現基類的抽象方法：初始化 Lycoris 畫刷管理器
   initializeBrushManager() {
-    // 使用 lycoris.js 的 LycorisBrushManager
-    if (typeof window.FlowerBrushManager !== 'undefined') {
-      this.brushManager = new window.FlowerBrushManager(this.currentStyle.config);
+    // 檢查所有必要的依賴
+    if (typeof window.FlowerBrushManager === 'undefined') {
+      console.error('[ERROR] FlowerBrushManager 未找到，請確保 FlowerBase.js 已載入');
+      return false;
+    }
+    
+    if (typeof brushManager !== 'undefined' && brushManager) {
+      // 重用現有的 brushManager
+      this.brushManager = brushManager;
+      this.brushManager.updateStyle(this.currentStyle.config);
       this.brushManager.initializeAllBrushes();
       return true;
     } else {
-      console.warn('[ERROR] FlowerBrushManager 未找到，請確保 lycoris.js 已載入');
-      return false;
+      // 創建新的畫刷管理器
+      try {
+        this.brushManager = new window.FlowerBrushManager(this.currentStyle.config);
+        this.brushManager.initializeAllBrushes();
+        return true;
+      } catch (error) {
+        console.error('[ERROR] 無法創建 FlowerBrushManager:', error);
+        return false;
+      }
     }
   }
   
   
   // 實現基類的抽象方法：生成當前風格的花朵
   generateCurrentStyleFlowers() {
+    
+    // 檢查畫刷管理器狀態
+    if (!this.brushManager) {
+      console.error('[ERROR] BrushManager not initialized, attempting to initialize...');
+      if (!this.initializeBrushManager()) {
+        console.error('[ERROR] Failed to initialize BrushManager, aborting flower generation');
+        return;
+      }
+    }
+    
     const options = {
       style: this.currentStyleName,
       flowerCount: 10,
       position: { x: [-100, 100], y: [-20, 20], z: [-100, 100] }
     };
 
-    console.log(this.currentStyleName);
     
     // 調用對應的 lycoris 生成函數
+    let functionCalled = false;
     switch (this.currentStyleName) {
-      
       case 'gothic':
         if (typeof generateGothicLycoris !== 'undefined') {
           generateGothicLycoris(options);
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateGothicLycoris function not found');
         }
         break;
       case 'ink':
         if (typeof generateInkLycoris !== 'undefined') {
           generateInkLycoris(options);
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateInkLycoris function not found');
         }
         break;
       case 'default':
       default:
         if (typeof generateFlowers !== 'undefined') {
           generateFlowers({ ...options, style: this.currentStyleName });
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateFlowers function not found');
         }
         break;
+    }
+    
+    if (functionCalled) {
+    } else {
+      console.error('[ERROR] No flower generation function was called');
     }
   }
   

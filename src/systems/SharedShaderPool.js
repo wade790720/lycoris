@@ -15,7 +15,6 @@ class SharedShaderPool {
     };
     
     this.startCleanupTimer();
-    console.log('[SYSTEM] SharedShaderPool initialized');
   }
 
   // 生成shader唯一標識

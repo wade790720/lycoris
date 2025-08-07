@@ -9,7 +9,6 @@
 if (typeof LavenderStyleManager !== 'undefined') {
   if (typeof styleManager === 'undefined' || !styleManager) {
     window.styleManager = new LavenderStyleManager();
-    console.log('[SYSTEM] LavenderStyleManager loaded and registered');
     
     // 初始化方法 - 等待 SceneManager 準備完成
     window.styleManager.initializeDefault = function() {
@@ -17,9 +16,7 @@ if (typeof LavenderStyleManager !== 'undefined') {
       if (typeof sceneManager !== 'undefined') {
         this.switchToStyle('default');
         this.startAutoRotation();
-        console.log('[LIFECYCLE] LavenderStyleManager initialized with default style and auto-rotation enabled');
       } else {
-        console.log('[SYSTEM] Deferring LavenderStyleManager initialization until SceneManager is ready');
       }
     };
     
@@ -30,25 +27,21 @@ if (typeof LavenderStyleManager !== 'undefined') {
         const number = parseInt(key);
         if (this.switchByNumber(number)) {
           const info = this.getCurrentStyleInfo();
-          console.log('[LIFECYCLE] Style switched by number key', number, ':', info.displayName);
         }
       } 
       // 空格鍵切換輪播
       else if (key === ' ') {
         this.toggleRotation();
         const info = this.getCurrentStyleInfo();
-        console.log('[LIFECYCLE] Auto-rotation toggled:', info.isRotating ? 'resumed' : 'paused', '- current style:', info.displayName);
       }
       // 左右方向鍵切換風格
       else if (keyCode === LEFT_ARROW) {
         this.previousStyle();
         const info = this.getCurrentStyleInfo();
-        console.log('[LIFECYCLE] Style switched to previous:', info.displayName);
       }
       else if (keyCode === RIGHT_ARROW) {
         this.nextStyle();
         const info = this.getCurrentStyleInfo();
-        console.log('[LIFECYCLE] Style switched to next:', info.displayName);
       }
     };
   }
@@ -74,7 +67,6 @@ function initializeLavender() {
   if (typeof LavenderFlower !== 'undefined') {
     lavenderFlower = new LavenderFlower();
     brushManager = lavenderFlower.brushManager;
-    console.log('[SYSTEM] LavenderFlower initialized');
   } else {
     console.warn('[SYSTEM] LavenderFlower class not found');
   }

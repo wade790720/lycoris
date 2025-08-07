@@ -379,46 +379,84 @@ class LavenderStyleManager extends BaseStyleManager {
   
   // 實現基類的抽象方法：初始化 Lavender 畫刷管理器
   initializeBrushManager() {
-    // 使用 lavender.js 的 FlowerBrushManager
-    if (typeof window.FlowerBrushManager !== 'undefined') {
-      this.brushManager = new window.FlowerBrushManager(this.currentStyle.config);
+    // 檢查所有必要的依賴
+    if (typeof window.FlowerBrushManager === 'undefined') {
+      console.error('[ERROR] FlowerBrushManager 未找到，請確保 FlowerBase.js 已載入');
+      return false;
+    }
+    
+    if (typeof brushManager !== 'undefined' && brushManager) {
+      // 重用現有的 brushManager
+      this.brushManager = brushManager;
+      this.brushManager.updateStyle(this.currentStyle.config);
       this.brushManager.initializeAllBrushes();
       return true;
     } else {
-      console.warn('[ERROR] FlowerBrushManager 未找到，請確保 lavender.js 已載入');
-      return false;
+      // 創建新的畫刷管理器
+      try {
+        this.brushManager = new window.FlowerBrushManager(this.currentStyle.config);
+        this.brushManager.initializeAllBrushes();
+        return true;
+      } catch (error) {
+        console.error('[ERROR] 無法創建 FlowerBrushManager:', error);
+        return false;
+      }
     }
   }
   
   
   // 實現基類的抽象方法：生成當前風格的花朵
   generateCurrentStyleFlowers() {
+    
+    // 檢查畫刷管理器狀態
+    if (!this.brushManager) {
+      console.error('[ERROR] BrushManager not initialized, attempting to initialize...');
+      if (!this.initializeBrushManager()) {
+        console.error('[ERROR] Failed to initialize BrushManager, aborting flower generation');
+        return;
+      }
+    }
+    
     const options = {
       style: this.currentStyleName,
       flowerCount: 40,
       position: { x: [-200, 200], y: [-30, 30], z: [-200, 200] }
     };
     
+    
     // 調用對應的 lavender 生成函數
+    let functionCalled = false;
     switch (this.currentStyleName) {
       case 'provence':
         if (typeof generateProvenceLavender !== 'undefined') {
           generateProvenceLavender(options);
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateProvenceLavender function not found');
         }
         break;
       case 'nordic':
         if (typeof generateNordicLavender !== 'undefined') {
           generateNordicLavender(options);
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateNordicLavender function not found');
         }
         break;
       case 'japanese':
         if (typeof generateJapaneseLavender !== 'undefined') {
           generateJapaneseLavender(options);
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateJapaneseLavender function not found');
         }
         break;
       case 'oceanic':
         if (typeof generateOceanicLavender !== 'undefined') {
           generateOceanicLavender(options);
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateOceanicLavender function not found');
         }
         break;
       case 'twilight':
@@ -426,8 +464,16 @@ class LavenderStyleManager extends BaseStyleManager {
       default:
         if (typeof generateFlowers !== 'undefined') {
           generateFlowers({ ...options, style: this.currentStyleName });
+          functionCalled = true;
+        } else {
+          console.error('[ERROR] generateFlowers function not found');
         }
         break;
+    }
+    
+    if (functionCalled) {
+    } else {
+      console.error('[ERROR] No flower generation function was called');
     }
   }
   
